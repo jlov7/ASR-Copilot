@@ -1,0 +1,12 @@
+id,title,owner,status,start,finish,planned_hours,actual_hours,blocked,dependency_ids
+T-201,Program mobilization,Sasha Ortiz,Complete,2024-01-08,2024-01-19,60,58,false,
+T-202,Workstream A: Core backbone swap (Vendor A),Noah Bennett,In Progress,2024-01-22,2024-02-29,180,140,false,T-201
+T-203,Workstream B: RAN upgrade clusters (Vendor B),Priya Raman,In Progress,2024-01-22,2024-03-08,200,150,true,T-201
+T-204,Workstream C: OSS/BSS mediation uplift,Kate Liu,In Progress,2024-01-29,2024-03-15,150,96,false,T-201
+T-205,Vendor interoperability lab,Marco Lee,Not Started,2024-02-12,2024-03-22,120,0,false,T-202;T-203
+T-206,Edge core integration gate,Ana Gomez,Not Started,2024-02-26,2024-03-29,140,0,false,T-205
+T-207,Service automation hardening (API),Jerry Wu,Not Started,2024-03-04,2024-04-12,110,0,false,T-204
+T-208,Migration dry run (north region),Olivia Park,Not Started,2024-03-18,2024-04-26,130,0,false,T-206;T-207
+T-209,Migration dry run (south region),Olivia Park,Not Started,2024-03-25,2024-05-03,130,0,false,T-206;T-207
+T-210,Executive pilot launch,Leah Chen,Not Started,2024-04-29,2024-05-24,90,0,false,T-208;T-209
+T-211,National rollout go/no-go board,Kai Nair,Not Started,2024-05-27,2024-06-07,70,0,false,T-210

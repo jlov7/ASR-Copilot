@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+node_modules/
+.DS_Store
+.env
+.cache/
+out/status_pack_*.md
+out/*.png
+logs/*.log
+coverage/
+app/frontend/dist/
