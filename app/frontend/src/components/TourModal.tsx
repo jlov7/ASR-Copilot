@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import type { KeyboardEvent, MouseEvent } from 'react'
 
 interface TourModalProps {
   open: boolean
@@ -35,6 +36,22 @@ export function TourModal({ open, stepIndex, onNext, onPrev, onClose }: TourModa
   const dialogRef = useRef<HTMLDivElement>(null)
   const step = steps[stepIndex]
 
+  const handleBackdropClick = (event: MouseEvent<HTMLButtonElement>) => {
+    if (event.currentTarget === event.target) {
+      onClose()
+    }
+  }
+
+  const handleBackdropKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key === 'Escape') {
+      onClose()
+    }
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      onClose()
+    }
+  }
+
   useEffect(() => {
     if (open && dialogRef.current) {
       dialogRef.current.focus()
@@ -57,7 +74,13 @@ export function TourModal({ open, stepIndex, onNext, onPrev, onClose }: TourModa
   }
 
   return (
-    <div className="modal-backdrop" role="presentation" onClick={onClose}>
+    <button
+      type="button"
+      className="modal-backdrop"
+      aria-label="Close guided tour"
+      onClick={handleBackdropClick}
+      onKeyDown={handleBackdropKeyDown}
+    >
       <div
         className="modal"
         role="dialog"
@@ -65,7 +88,6 @@ export function TourModal({ open, stepIndex, onNext, onPrev, onClose }: TourModa
         aria-labelledby="tour-title"
         tabIndex={-1}
         ref={dialogRef}
-        onClick={(event) => event.stopPropagation()}
       >
         <div className="modal-nav">
           <h2 id="tour-title">Guided tour</h2>
@@ -93,6 +115,6 @@ export function TourModal({ open, stepIndex, onNext, onPrev, onClose }: TourModa
           </div>
         </div>
       </div>
-    </div>
+    </button>
   )
 }

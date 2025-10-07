@@ -15,6 +15,7 @@ interface DashboardViewProps {
   onExport: () => Promise<void>
   onSaveRoi: (payload: RoiUpdateRequest) => Promise<void>
   roiSaving: boolean
+  onNotify?: (message: string) => void
 }
 
 function ragFromMetrics(spi: number | null, cpi: number | null): RAGState {
@@ -64,7 +65,7 @@ function computePreview(assumptions: RoiAssumption[], modifiers: RoiModifiers) {
   }
 }
 
-export function DashboardView({ data, isLoading, exporting, onExport, onSaveRoi, roiSaving }: DashboardViewProps) {
+export function DashboardView({ data, isLoading, exporting, onExport, onSaveRoi, roiSaving, onNotify }: DashboardViewProps) {
   const rag = useMemo(() => (data ? ragFromMetrics(data.evm.spi, data.evm.cpi) : 'Watch'), [data])
   const [localAssumptions, setLocalAssumptions] = useState<RoiAssumption[]>(data?.roi.assumptions ?? [])
   const [selectedPreset, setSelectedPreset] = useState<string>(data?.roi.selected_preset ?? 'medium')
@@ -120,6 +121,58 @@ export function DashboardView({ data, isLoading, exporting, onExport, onSaveRoi,
 
   const preview = useMemo(() => computePreview(localAssumptions, localModifiers), [localAssumptions, localModifiers])
 
+  const metrics = data
+    ? [
+        { label: 'Planned Value (PV)', value: data.evm.pv, tooltip: 'PV (planned value) tracks scheduled work in hours.' },
+        { label: 'Earned Value (EV)', value: data.evm.ev, tooltip: 'EV (earned value) reflects completed work weightings.' },
+        { label: 'Actual Cost (AC)', value: data.evm.ac, tooltip: 'AC (actual cost proxy) sums actual hours.' },
+        { label: 'Schedule Variance (SV)', value: data.evm.sv, tooltip: 'SV = EV - PV; negative values show schedule slip.' },
+        { label: 'Cost Variance (CV)', value: data.evm.cv, tooltip: 'CV = EV - AC; negative values show overspend.' },
+        { label: 'CPI', value: data.evm.cpi ?? 0, tooltip: 'CPI = EV ÷ AC; < 1.0 indicates cost pressure.' },
+        { label: 'SPI', value: data.evm.spi ?? 0, tooltip: 'SPI = EV ÷ PV; < 1.0 indicates schedule pressure.' },
+        { label: 'Estimate at Completion (EAC)', value: data.evm.eac ?? 0, tooltip: 'EAC = AC + (BAC - EV) ÷ CPI.' },
+      ]
+    : []
+
+  const changeGlyph: Record<'added' | 'updated' | 'removed', string> = {
+    added: '▲',
+    updated: '↻',
+    removed: '▼',
+  }
+
+  const sourceLookup: Record<'task' | 'risk' | 'note', string> = {
+    task: 'tasks.csv',
+    risk: 'risks.csv',
+    note: 'status_notes.md',
+  }
+
+  const copyAssumptions = async () => {
+    const header = ['| Task | Frequency/mo | Hours saved | PM hourly cost | Team size |', '| --- | --- | --- | --- | --- |']
+    const rows = localAssumptions.map((assumption) => {
+      const frequency = (assumption.frequency_per_month * localModifiers.frequency_multiplier).toFixed(2)
+      const hours = (assumption.hours_saved * localModifiers.time_saved_multiplier).toFixed(2)
+      const rate = assumption.pm_hourly_cost.toFixed(2)
+      return `| ${assumption.task_name} | ${frequency} | ${hours} | $${rate} | ${assumption.team_size} |`
+    })
+    const lines = [
+      `# ASR Copilot ROI assumptions (${selectedPreset})`,
+      '',
+      ...header,
+      ...rows,
+      '',
+      `Projected annual savings: $${preview.annual.toLocaleString()}`,
+      `Projected monthly savings: $${preview.monthly.toLocaleString()}`,
+      `Projected annual hours reclaimed: ${preview.hours.toLocaleString()} hrs`,
+    ]
+    try {
+      await navigator.clipboard.writeText(lines.join('\n'))
+      onNotify?.('ROI assumptions copied to clipboard.')
+    } catch (err) {
+      onNotify?.('Clipboard copy failed. Copy manually from ROI table.')
+      console.error('Clipboard copy failed', err)
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="dashboard-grid" aria-busy="true">
@@ -158,19 +211,12 @@ export function DashboardView({ data, isLoading, exporting, onExport, onSaveRoi,
           </div>
         </div>
         <div className="metric-grid" role="list">
-          {[
-            { label: 'Planned Value (PV)', value: data.evm.pv },
-            { label: 'Earned Value (EV)', value: data.evm.ev },
-            { label: 'Actual Cost (AC)', value: data.evm.ac },
-            { label: 'Schedule Variance (SV)', value: data.evm.sv },
-            { label: 'Cost Variance (CV)', value: data.evm.cv },
-            { label: 'CPI', value: data.evm.cpi ?? 0 },
-            { label: 'SPI', value: data.evm.spi ?? 0 },
-            { label: 'Estimate at Completion (EAC)', value: data.evm.eac ?? 0 },
-          ].map((metric, idx) => (
-            <article key={idx} className="metric-card" role="listitem">
+          {metrics.map((metric) => (
+            <article key={metric.label} className="metric-card" role="listitem" title={metric.tooltip}>
               <span className="metric-label">{metric.label}</span>
-              <span className="metric-value">{typeof metric.value === 'number' ? metric.value.toFixed(2) : metric.value}</span>
+              <span className="metric-value">
+                {typeof metric.value === 'number' ? metric.value.toFixed(2) : metric.value}
+              </span>
               <div className="metric-bar" aria-hidden="true">
                 <div
                   className="metric-bar-fill"
@@ -234,11 +280,18 @@ export function DashboardView({ data, isLoading, exporting, onExport, onSaveRoi,
           <div className="timeline">
             {data.changes.items.slice(0, 5).map((item) => (
               <article key={item.id + item.change_type} className={`timeline-item ${item.change_type}`}>
-                <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <strong>
-                    {changeLabel[item.change_type]} {item.entity_type} – {item.title}
-                  </strong>
-                  <span>{new Date(item.timestamp).toLocaleString()}</span>
+                <header className="timeline-header">
+                  <div className="timeline-title">
+                    <span className={`diff-pill ${item.change_type}`} aria-hidden="true">
+                      {changeGlyph[item.change_type]}
+                    </span>
+                    <div>
+                      <strong>
+                        {changeLabel[item.change_type]} {item.entity_type} – {item.title}
+                      </strong>
+                      <p className="timeline-subtitle">Source: {sourceLookup[item.entity_type]} • {new Date(item.timestamp).toLocaleString()}</p>
+                    </div>
+                  </div>
                 </header>
                 <pre>{item.detail}</pre>
               </article>
@@ -332,7 +385,10 @@ export function DashboardView({ data, isLoading, exporting, onExport, onSaveRoi,
             </label>
           ))}
         </div>
-        <div className="cta-group" style={{ justifyContent: 'flex-end' }}>
+        <div className="cta-group" style={{ justifyContent: 'flex-end', gap: '12px' }}>
+          <button className="button ghost" type="button" onClick={copyAssumptions}>
+            Copy assumptions
+          </button>
           <button
             className="button secondary"
             onClick={() => {

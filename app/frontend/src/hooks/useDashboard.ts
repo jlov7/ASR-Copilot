@@ -10,10 +10,13 @@ export function useDashboard() {
     try {
       const data = await fetchDashboard()
       setState({ data, loading: false })
-    } catch (error: any) {
-      if (error?.response?.status === 404) {
+    } catch (error: unknown) {
+      type HttpError = { response?: { status?: number } }
+      const status = typeof error === 'object' && error !== null && 'response' in error ? (error as HttpError).response?.status : undefined
+      if (status === 404) {
         setState({ data: undefined, loading: false })
       } else {
+        console.error('Dashboard fetch failed', error)
         setState((prev) => ({
           data: prev.data,
           loading: false,
@@ -28,11 +31,12 @@ export function useDashboard() {
   }, [refresh])
 
   const loadSamples = useCallback(async () => {
-    setState({ loading: true })
+    setState((prev) => ({ ...prev, loading: true, error: undefined }))
     try {
       await loadSampleData()
       await refresh()
     } catch (error) {
+      console.error('Sample data load failed', error)
       setState({ loading: false, error: 'Failed to load sample data.' })
     }
   }, [refresh])

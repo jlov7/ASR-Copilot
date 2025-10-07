@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
 import './App.css'
 import './index.css'
@@ -26,7 +26,8 @@ function loadChecklist(): ChecklistState {
   if (raw) {
     try {
       return JSON.parse(raw)
-    } catch (error) {
+    } catch (parsingError) {
+      console.error('Failed to parse checklist cache', parsingError)
       return {}
     }
   }
@@ -52,17 +53,19 @@ export default function App() {
     saveChecklist(checklist)
   }, [checklist])
 
+  const modeLabel = settings.safe_mode ? 'Safe Mode • mock adapters' : 'Live Mode • read-only adapters'
+
   const heroSubtitle = useMemo(() => {
     if (!data) {
-      return 'Upload your backlog, risks, and notes—ASR Copilot delivers executive clarity in minutes.'
+      return `${modeLabel} | Upload your backlog, risks, and notes—ASR Copilot delivers executive clarity in minutes.`
     }
-    return `Dataset updated ${new Date(data.meta.last_updated).toLocaleString()} • Hash ${data.meta.dataset_hash.slice(0, 8)}`
-  }, [data])
+    return `Dataset updated ${new Date(data.meta.last_updated).toLocaleString()} • Hash ${data.meta.dataset_hash.slice(0, 8)} • ${modeLabel}`
+  }, [data, modeLabel])
 
-  const showToast = (message: string) => {
+  const showToast = useCallback((message: string) => {
     setToast(message)
     setTimeout(() => setToast(null), 4000)
-  }
+  }, [])
 
   const markChecklist = (key: string) => {
     setChecklist((prev) => ({ ...prev, [key]: true }))
@@ -192,6 +195,11 @@ export default function App() {
           </button>
         </div>
       </header>
+      {!settingsLoading && (
+        <div className={`safety-banner ${settings.safe_mode ? 'safe' : 'live'}`} role="status" aria-live="polite">
+          {settings.safe_mode ? 'SAFE MODE • Mock adapters only. Provide credentials to enable live integrations.' : 'LIVE MODE • Read-only adapters active. Tokens are redacted in logs.'}
+        </div>
+      )}
 
       <section className="hero">
         <div>
@@ -256,6 +264,7 @@ export default function App() {
         onExport={handleExport}
         onSaveRoi={handleSaveRoi}
         roiSaving={roiSaving}
+        onNotify={showToast}
       />
 
       <footer style={{ marginTop: '48px', color: '#4a5b82', fontSize: '0.85rem' }}>
