@@ -1,17 +1,16 @@
 # ASR Copilot
 
-[![Run the Demo](https://img.shields.io/badge/Run%20the%20Demo-bash-blue?logo=gnubash)](#quickstart) [![Open in GitHub Codespaces](https://img.shields.io/badge/Open%20in-Codespaces-24292e?logo=github)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=jlov7%2FASR-Copilot) [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-green.svg)](LICENSE) ![Tests](https://img.shields.io/badge/tests-pytest%20%7C%20vitest-blue)
+[![Run the Demo](https://img.shields.io/badge/Run%20the%20Demo-bash-blue?logo=gnubash)](#quickstart) [![Open in GitHub Codespaces](https://img.shields.io/badge/Open%20in-Codespaces-24292e?logo=github)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=jlov7%2FASR-Copilot) [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-green.svg)](LICENSE) [![CI](https://github.com/jlov7/ASR-Copilot/actions/workflows/ci.yml/badge.svg)](https://github.com/jlov7/ASR-Copilot/actions/workflows/ci.yml)
 
 ASR Copilot (Autonomy–Status–Risk Copilot) is a production-quality proof-of-concept that automates the most time-consuming, rationalizable PM workflows for enterprise TMT/Telco programs. It ingests CSV/Markdown status artifacts (no credentials required), computes earned value metrics, surfaces a live risk watchlist, narrates what changed since yesterday, and assembles a shareable executive status pack with a single click.
 
-> **ASR Copilot in 30 seconds**
-> - **Solves:** Weekly status drudgery, late surfacing of schedule/cost risk, and manually authored exec packs.
-> - **Demo shows:** Upload or load samples → RAG/EVM → Top 5 risks → “what changed” → ROI → 1-click export.
-> - **Extend next:** Turn on adapters (read-only), add metrics/cards, or schedule safe daily runs.
+> **See it in 15 seconds** → Click **Guided Mode** below (no files needed).  
+> ASR Copilot turns weekly status drudgery into a 3-minute executive update: *health (RAG)* → *EVM (CPI/SPI)* → *Top risks* → *What changed* → *1-click export*.  
+> **No integrations. Safe Mode by default. Deterministic analytics.**
 
-[📈 Why this matters](WHY.md)
+![ASR Copilot overview](docs/SCREENSHOTS/overview.gif)
 
-![ASR Copilot demo path](docs/media/demo-flow.gif)
+[📈 Why this matters](WHY.md) · [🎤 Presenter notes](docs/DEMO-SCRIPT.md)
 
 | Before | After (ASR Copilot) | Impact example (tunable) |
 | --- | --- | --- |
@@ -32,14 +31,21 @@ Program managers in large enterprises spend 8–12 hours per week aggregating st
 4. **Real productivity gains** – enterprises see the biggest uplift when AI accelerates many workflows, not a single task.
 
 ## Key capabilities
-- **No-integration mode**: Upload CSV/MD artifacts or load bundled samples instantly.
+- **Guided Mode (no files)**: Preload Telco 5G, cloud migration, or CPE swap scenarios with Safe Mode locked on—ideal for skeptical execs.
+- **No-integration uploads**: Bring your own CSV/Markdown artifacts to refresh analytics in minutes.
 - **Executive cockpit**: RAG banner, EVM gauges, Top 5 risks, ROI estimator with complexity presets, and “what changed” timeline.
 - **Status Pack exports**: Generates Markdown + PNG charts in `/out/` and optionally posts to Slack when credentials exist.
 - **Adapters**: Mock Jira/Slack/ServiceNow providers ship by default; live adapters activate via `.env` tokens.
 - **Safety-first**: Local-first storage, Safe Mode toggle to disable outbound calls, and deterministic summarization.
+- **Hosted safe demo**: Deployable to Render or Fly via `render.yaml` with Safe Mode enforced and only offline sample data.
 - **Automation loop**: Visual runbook tracks Ingestion → Analytics → Narrative → Export, with one-click dry runs for stakeholders.
 - **Adapters control**: Guided panel to switch mock/live modes, run sanity checks, and highlight Safe Mode guardrails.
 - **Presenter shortcuts**: Hit `Shift + ?` during the demo to reveal keyboard shortcuts (tour, sample load, export, dry-run).
+
+### Security at a glance
+- **Safe Mode locked on**: The demo, Guided Mode, and hosted templates run without outbound calls.
+- **Mock adapters only**: Jira/Slack/ServiceNow stay read-only until you intentionally provide credentials.
+- **Local-first exports**: Status packs land in `/out/` on your machine; secrets never persist to disk.
 
 ## Screenshot gallery
 ![Landing page](docs/SCREENSHOTS/landing.png)
@@ -93,6 +99,12 @@ Program managers in large enterprises spend 8–12 hours per week aggregating st
 - The devcontainer installs Python + Node dependencies automatically; use `./app/scripts/run_demo.sh` inside the Codespace.
 - To use locally with VS Code Dev Containers or Docker Desktop, open the repo in a devcontainer and run `make demo`.
 
+### Option D – Hosted Safe Demo (Render)
+1. Fork this repo (or use it as a template) so you can connect Render.
+2. In the Render dashboard choose **New → Blueprint** and point it at `render.yaml`.
+3. Deploy with the default environment variables (`ASR_SAFE_MODE=true`, `ADAPTER_MODE=mock`). Guided Mode stays offline-only.
+4. Render serves the FastAPI backend and the pre-built React frontend from the same service at the generated URL.
+
 ## Vite + React rationale
 - Granular control over accessibility and onboarding flows.
 - Straightforward integration with FastAPI JSON contracts via generated TypeScript types.
@@ -121,6 +133,7 @@ A detailed tree lives in `docs/ARCHITECTURE.md`.
 - [WHY.md](WHY.md) – value story, before/after table, autonomy ladder  
 - [docs/PRD.md](docs/PRD.md) – problem statement, personas, acceptance criteria  
 - [docs/PLAN.md](docs/PLAN.md) – milestones, risks, demo coordination  
+- [docs/DEPLOY.md](docs/DEPLOY.md) – pilot playbook for Assist → Orchestrate → Autopilot rollouts  
 - [docs/AGENTS.md](docs/AGENTS.md) – agent roles, triggers, and guardrails  
 - [docs/DATA-SCHEMA.md](docs/DATA-SCHEMA.md) – CSV/Markdown contracts, EVM formulas, sample data dictionary  
 - [docs/EVM-PRIMER.md](docs/EVM-PRIMER.md) – CPI/SPI primer with worked example  
@@ -142,6 +155,7 @@ A detailed tree lives in `docs/ARCHITECTURE.md`.
 - Toggle adapters in-app via **Settings → Adapters**; live mode is disabled until Safe Mode is off and environment variables are present.
 
 ## Testing
+- `pytest -k golden` verifies the deterministic dashboard payload stays aligned with `out/golden/dashboard_5g.json`.
 - Run `pytest` for backend analytics, automation loop logging, and adapter guardrail coverage.
 - `npm run test -- --run` executes frontend unit tests (Vitest) and accessibility smoke checks.
 - Pre-commit hooks enforce formatting and linting prior to commits.

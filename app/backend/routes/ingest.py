@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, File, UploadFile
+from pydantic import BaseModel, Field
 
 from app.backend.config import Settings, get_settings
 from app.backend.models import UploadResponse
@@ -12,8 +13,23 @@ from app.backend.services.ingestion import (
     load_sample_dataset,
     to_upload_response,
 )
+from app.backend.services.samples import load_guided_dataset
 
 router = APIRouter(prefix="/api", tags=["ingestion"])
+
+
+class DemoLoadRequest(BaseModel):
+    """Optional scenario payload for demo dataset loading."""
+
+    scenario: str | None = Field(
+        default=None,
+        description="Guided scenario identifier (e.g., '5g', 'cloud', 'cpe').",
+    )
+    seed: int | None = Field(
+        default=None,
+        ge=0,
+        description="Optional deterministic seed to vary scenario timestamps.",
+    )
 
 
 @router.post("/ingest", response_model=UploadResponse)
@@ -33,12 +49,25 @@ async def ingest_data(
 
 @router.post("/demo/load", response_model=UploadResponse)
 async def load_demo_dataset(
+    payload: DemoLoadRequest | None = None,
     settings: Settings = Depends(get_settings),
 ) -> UploadResponse:
-    """Load bundled sample data."""
-    snapshot = load_sample_dataset(settings)
+    """Load bundled sample data or a guided scenario."""
+    scenario = payload.scenario if payload else None
+    seed = payload.seed if payload else None
+    if scenario:
+        snapshot = load_guided_dataset(settings, scenario, seed=seed)
+        trigger = "seed"
+    else:
+        snapshot = load_sample_dataset(settings)
+        trigger = "upload"
     cache.save_snapshot(settings, snapshot)
-    automation.record_dataset_refresh(settings, snapshot, trigger="upload", previous_snapshot=cache.load_previous(settings))
+    automation.record_dataset_refresh(
+        settings,
+        snapshot,
+        trigger=trigger,
+        previous_snapshot=cache.load_previous(settings),
+    )
     return to_upload_response(snapshot)
 
 

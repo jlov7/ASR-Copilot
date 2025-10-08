@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { DashboardState } from '../types'
-import { fetchDashboard, loadSampleData } from '../api/client'
+import { fetchDashboard, loadSampleData, type SampleOptions } from '../api/client'
 
 export function useDashboard() {
   const [state, setState] = useState<DashboardState>({ loading: true })
@@ -30,10 +30,10 @@ export function useDashboard() {
     refresh()
   }, [refresh])
 
-  const loadSamples = useCallback(async () => {
+  const loadSamples = useCallback(async (options?: SampleOptions) => {
     setState((prev) => ({ ...prev, loading: true, error: undefined }))
     try {
-      await loadSampleData()
+      await loadSampleData(options)
       await refresh()
     } catch (error) {
       console.error('Sample data load failed', error)

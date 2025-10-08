@@ -159,7 +159,7 @@ def record_dataset_refresh(
     changes = generate_changes(baseline_snapshot, snapshot)
     metrics = calculate_metrics(snapshot.tasks, snapshot.baseline)
     evm = EvmMetrics(**metrics)
-    risks_summary = summarize_risks(snapshot.risks)
+    risks_summary = summarize_risks(snapshot.risks, as_of=snapshot.last_updated.date())
     analytics_duration = int((time.perf_counter() - analytics_start) * 1000)
     cpi = f"{evm.cpi:.2f}" if evm.cpi is not None else "n/a"
     spi = f"{evm.spi:.2f}" if evm.spi is not None else "n/a"
@@ -232,7 +232,7 @@ def simulate_dry_run(settings: Settings) -> AutomationStatus:
     changes = generate_changes(previous_snapshot, snapshot)
     metrics = calculate_metrics(snapshot.tasks, snapshot.baseline)
     evm = EvmMetrics(**metrics)
-    risks_summary = summarize_risks(snapshot.risks)
+    risks_summary = summarize_risks(snapshot.risks, as_of=snapshot.last_updated.date())
     analytics_duration = int((time.perf_counter() - analytics_start) * 1000)
     cpi = f"{evm.cpi:.2f}" if evm.cpi is not None else "n/a"
     spi = f"{evm.spi:.2f}" if evm.spi is not None else "n/a"

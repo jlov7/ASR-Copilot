@@ -215,6 +215,12 @@ def _compute_dataset_hash(tasks: List[Task], risks: List[Risk], notes: List[Stat
     return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
 
 
+def compute_dataset_hash(tasks: List[Task], risks: List[Risk], notes: List[StatusNote]) -> str:
+    """Expose deterministic dataset hash computation for snapshot builders."""
+
+    return _compute_dataset_hash(tasks, risks, notes)
+
+
 def ingest_payload(
     tasks_file: UploadFile,
     risks_file: UploadFile,

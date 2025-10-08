@@ -1,0 +1,6 @@
+id,summary,probability,impact,owner,due,mitigation
+R-201,Vendor B radio units arriving 3 weeks late,0.55,5,Priya Raman,2024-03-04,Escalate to vendor exec sponsor; pull ahead buffer stock via contingency PO.
+R-202,Transport swap maintenance window overrun,0.35,4,Noah Bennett,2024-02-27,Stage rollback plan and pre-approve overtime with NOC.
+R-203,OSS API regression delays automation,0.4,4,Jerry Wu,2024-03-18,Expand automated tests and add shadow environment smoke runs.
+R-204,Edge integration lab capacity constraints,0.3,3,Zara Hayes,2024-03-11,Increase shared lab hours; schedule overnight lab access with vendors.
+R-205,Change advisory board rejects migration plan,0.2,5,Leah Chen,2024-04-22,Pre-brief CAB reviewers and align on risk mitigations one sprint earlier.

@@ -1,0 +1,5 @@
+id,summary,probability,impact,owner,due,mitigation
+CR-01,Identity & SSO integration not ready before Wave 1,0.6,4,Security Guild,2024-04-05,Escalated to IAM lead; additional sprint allocated to federation testing.
+CR-02,Legacy batch jobs incompatible with cloud scheduler,0.4,3,RunOps Lead,2024-04-19,Migrate two highest-volume jobs to managed Airflow and validate failover.
+CR-03,Change advisory board approval delays,0.5,3,PMO Liaison,2024-03-29,Submit consolidated change packet with automated test evidence.
+CR-04,Data residency concerns for EU workloads,0.3,5,Compliance Partner,2024-05-03,Confirm EU region landing zone and document encryption guardrails.

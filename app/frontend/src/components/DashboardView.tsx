@@ -219,8 +219,24 @@ export function DashboardView({
         { label: 'Actual Cost (AC)', value: data.evm.ac, tooltip: 'AC (actual cost proxy) sums actual hours.' },
         { label: 'Schedule Variance (SV)', value: data.evm.sv, tooltip: 'SV = EV - PV; negative values show schedule slip.' },
         { label: 'Cost Variance (CV)', value: data.evm.cv, tooltip: 'CV = EV - AC; negative values show overspend.' },
-        { label: 'CPI', value: data.evm.cpi ?? 0, tooltip: 'CPI = EV ÷ AC; < 1.0 indicates cost pressure.' },
-        { label: 'SPI', value: data.evm.spi ?? 0, tooltip: 'SPI = EV ÷ PV; < 1.0 indicates schedule pressure.' },
+        {
+          label: 'Cost Performance Index (CPI)',
+          value: data.evm.cpi ?? 0,
+          tooltip: 'CPI = EV ÷ AC; < 1.0 indicates cost pressure.',
+          explain: {
+            text: 'CPI = Earned Value ÷ Actual Cost. Above 1.0 means you are under budget, below 1.0 signals pressure.',
+            href: `${DOCS_BASE_URL}/docs/EVM-PRIMER.md#cost-performance-index`,
+          },
+        },
+        {
+          label: 'Schedule Performance Index (SPI)',
+          value: data.evm.spi ?? 0,
+          tooltip: 'SPI = EV ÷ PV; < 1.0 indicates schedule pressure.',
+          explain: {
+            text: 'SPI = Earned Value ÷ Planned Value. Above 1.0 means you are ahead of schedule.',
+            href: `${DOCS_BASE_URL}/docs/EVM-PRIMER.md#schedule-performance-index`,
+          },
+        },
         { label: 'Estimate at Completion (EAC)', value: data.evm.eac ?? 0, tooltip: 'EAC = AC + (BAC - EV) ÷ CPI.' },
       ]
     : []
@@ -399,7 +415,20 @@ export function DashboardView({
         <div className="metric-grid" role="list">
           {metrics.map((metric) => (
             <article key={metric.label} className="metric-card" role="listitem" title={metric.tooltip}>
-              <span className="metric-label">{metric.label}</span>
+              <div className="metric-card-header">
+                <span className="metric-label">{metric.label}</span>
+                {metric.explain && (
+                  <details className="metric-tooltip">
+                    <summary aria-label={`Explain ${metric.label}`}>ⓘ</summary>
+                    <div className="metric-tooltip-body">
+                      <p>{metric.explain.text}</p>
+                      <a href={metric.explain.href} target="_blank" rel="noreferrer">
+                        Learn more
+                      </a>
+                    </div>
+                  </details>
+                )}
+              </div>
               <span className="metric-value">
                 {typeof metric.value === 'number' ? metric.value.toFixed(2) : metric.value}
               </span>

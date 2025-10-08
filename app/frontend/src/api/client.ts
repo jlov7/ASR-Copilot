@@ -23,8 +23,14 @@ export async function fetchDashboard(): Promise<DashboardPayload> {
   return data
 }
 
-export async function loadSampleData(): Promise<UploadResponse> {
-  const { data } = await client.post<UploadResponse>('/demo/load')
+export interface SampleOptions {
+  scenario?: string
+  seed?: number
+}
+
+export async function loadSampleData(options?: SampleOptions): Promise<UploadResponse> {
+  const payload = options && (options.scenario || options.seed !== undefined) ? options : undefined
+  const { data } = await client.post<UploadResponse>('/demo/load', payload)
   return data
 }
 

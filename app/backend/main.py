@@ -5,9 +5,12 @@ from __future__ import annotations
 import logging
 import time
 import uuid
+from pathlib import Path
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.backend.config import get_settings
 from app.backend.logging_config import configure_logging
@@ -49,6 +52,12 @@ def create_app() -> FastAPI:
     app.include_router(automation.router)
     app.include_router(settings.router)
 
+    frontend_root = Path(__file__).resolve().parents[2] / "frontend" / "dist"
+    index_html = frontend_root / "index.html"
+    assets_dir = frontend_root / "assets"
+    if frontend_root.exists() and index_html.exists() and assets_dir.exists():
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+
     @app.get("/healthz")
     async def healthcheck() -> dict:
         settings_obj = get_settings()
@@ -57,6 +66,21 @@ def create_app() -> FastAPI:
             "safe_mode": settings_obj.safe_mode,
             "adapter_mode": settings_obj.adapter_mode,
         }
+
+    if frontend_root.exists() and index_html.exists():
+
+        @app.get("/", include_in_schema=False)
+        async def serve_index() -> FileResponse:
+            return FileResponse(index_html)
+
+        @app.get("/{full_path:path}", include_in_schema=False)
+        async def serve_spa(full_path: str) -> FileResponse:
+            if full_path.startswith(("api", "docs", "openapi", "redoc", "healthz")):
+                raise HTTPException(status_code=404)
+            target = frontend_root / full_path
+            if target.exists() and target.is_file():
+                return FileResponse(target)
+            return FileResponse(index_html)
 
     return app
 

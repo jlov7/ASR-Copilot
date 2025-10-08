@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import date
-from typing import Iterable, List
+from typing import Iterable, List, Optional
 
 from app.backend.models import Risk, RiskListItem, RiskMatrixPoint, RiskSummary
 
@@ -20,10 +20,10 @@ def _status_from_severity(value: float) -> str:
     return "Low"
 
 
-def summarize_risks(risks: Iterable[Risk]) -> RiskSummary:
+def summarize_risks(risks: Iterable[Risk], *, as_of: Optional[date] = None) -> RiskSummary:
     """Return sorted risk list and heatmap data."""
     items: List[RiskListItem] = []
-    today = date.today()
+    today = as_of or date.today()
     for risk in risks:
         sev = _severity(risk.probability, risk.impact)
         days_to_due = (risk.due_date - today).days

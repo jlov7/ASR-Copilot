@@ -18,11 +18,13 @@ from playwright.async_api import async_playwright
 ROOT = Path(__file__).resolve().parents[1]
 FRONTEND_DIST = ROOT / "frontend" / "dist"
 DOC_MEDIA_DIR = ROOT.parent / "docs" / "media"
+DOC_SCREENSHOTS_DIR = ROOT.parent / "docs" / "SCREENSHOTS"
 OUT_DIR = ROOT.parent / "out"
 
 
 def ensure_dirs() -> None:
     DOC_MEDIA_DIR.mkdir(parents=True, exist_ok=True)
+    DOC_SCREENSHOTS_DIR.mkdir(parents=True, exist_ok=True)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
@@ -75,13 +77,34 @@ async def main() -> None:
 
             # Load dashboard and sample data
             await page.goto("http://127.0.0.1:4173", wait_until="networkidle")
+            await page.evaluate(
+                """
+                localStorage.setItem('asr_onboarding_complete','done');
+                localStorage.setItem('asr_welcome_seen','done');
+                """
+            )
+            await page.reload(wait_until="networkidle")
             skip_button = page.get_by_role("button", name="Skip tour")
             if await skip_button.is_visible(timeout=1000):
                 await skip_button.click()
                 await page.wait_for_timeout(200)
-            await page.evaluate("localStorage.setItem('asr_onboarding_complete','done')")
-            await page.get_by_role("button", name="Try with sample data").click()
+            hero_section = page.locator(".hero")
+            await hero_section.scroll_into_view_if_needed()
+            landing_path = DOC_SCREENSHOTS_DIR / "landing.png"
+            await hero_section.screenshot(path=str(landing_path))
+            await page.get_by_role("button", name="Open Guided Mode").click()
+            await page.wait_for_timeout(300)
+            await page.get_by_role("button", name="Launch scenario").first.click()
             await page.wait_for_timeout(2000)
+            evm_section = page.locator("section").filter(has=page.get_by_role("heading", name="Program health"))
+            await evm_section.scroll_into_view_if_needed()
+            await evm_section.screenshot(path=str(DOC_SCREENSHOTS_DIR / "evm.png"))
+            risk_section = page.locator("section").filter(has=page.get_by_role("heading", name="Top risks"))
+            await risk_section.scroll_into_view_if_needed()
+            await risk_section.screenshot(path=str(DOC_SCREENSHOTS_DIR / "risks.png"))
+            roi_section = page.locator("section").filter(has=page.get_by_role("heading", name="Show me the ROI"))
+            await roi_section.scroll_into_view_if_needed()
+            await roi_section.screenshot(path=str(DOC_SCREENSHOTS_DIR / "roi.png"))
             roi_heading = page.get_by_role("heading", name="Show me the ROI")
             await roi_heading.wait_for(timeout=10000)
             await roi_heading.scroll_into_view_if_needed()
@@ -93,6 +116,9 @@ async def main() -> None:
             # Export status pack
             await page.get_by_role("button", name="Export Status Pack").first.click()
             await page.wait_for_timeout(2000)
+            toast_locator = page.locator(".toast")
+            if await toast_locator.first.is_visible(timeout=1000):
+                await toast_locator.first.screenshot(path=str(DOC_SCREENSHOTS_DIR / "export-toast.png"))
 
             markdown_files = sorted(OUT_DIR.glob("status_pack_*.md"), key=os.path.getmtime)
             if not markdown_files:
@@ -126,29 +152,45 @@ code { background: #f7f9ff; padding: 2px 4px; border-radius: 4px; }
 
             async def snapshot(name: str) -> Path:
                 temp_path = DOC_MEDIA_DIR / name
-                await page.screenshot(path=str(temp_path), full_page=True)
+                await page.screenshot(path=str(temp_path), full_page=False)
                 return temp_path
 
             await page.goto("http://127.0.0.1:4173", wait_until="networkidle")
+            await page.evaluate(
+                """
+                localStorage.setItem('asr_onboarding_complete','done');
+                localStorage.setItem('asr_welcome_seen','done');
+                """
+            )
+            await page.reload(wait_until="networkidle")
             await page.wait_for_selector('text="Start guided tour"')
             skip_button = page.get_by_role("button", name="Skip tour")
             if await skip_button.is_visible(timeout=1000):
                 await skip_button.click()
                 await page.wait_for_timeout(200)
-            await page.evaluate("localStorage.setItem('asr_onboarding_complete','done')")
             frames.append(await snapshot("frame-tour.png"))
             await page.get_by_role("button", name="Start guided tour").click()
             await page.wait_for_timeout(500)
             frames.append(await snapshot("frame-tour-step.png"))
             await page.get_by_role("button", name="Skip tour").click()
             await page.wait_for_timeout(500)
-            await page.get_by_role("button", name="Try with sample data").click()
+            await page.get_by_role("button", name="Open Guided Mode").click()
+            await page.wait_for_timeout(300)
+            await page.get_by_role("button", name="Launch scenario").first.click()
             await page.wait_for_timeout(1200)
             frames.append(await snapshot("frame-dashboard.png"))
+
+            for frame_name, target_name in {
+                "frame-tour-step.png": "tour-step.png",
+            }.items():
+                frame_path = DOC_MEDIA_DIR / frame_name
+                if frame_path.exists():
+                    shutil.copy(frame_path, DOC_SCREENSHOTS_DIR / target_name)
 
             gif_frames = [imageio.imread(frame) for frame in frames]
             gif_path = DOC_MEDIA_DIR / "demo-flow.gif"
             imageio.mimsave(gif_path, gif_frames, duration=1.0)
+            shutil.copy(gif_path, DOC_SCREENSHOTS_DIR / "overview.gif")
 
             for frame in frames:
                 frame.unlink(missing_ok=True)

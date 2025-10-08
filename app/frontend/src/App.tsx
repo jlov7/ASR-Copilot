@@ -12,9 +12,12 @@ import { useSettings } from './hooks/useSettings'
 import { exportStatusPack, fetchExportMarkdown, revealExportPath, runAutomationDryRun, updateRoi, uploadDataset } from './api/client'
 import type { RoiUpdateRequest } from './types'
 import { ToastBar } from './components/ToastBar'
+import { GuidedMode, type GuidedScenario } from './features/landing/GuidedMode'
+import { WelcomeModal } from './components/WelcomeModal'
 
 const ONBOARDING_KEY = 'asr_onboarding_complete'
 const CHECKLIST_KEY = 'asr_onboarding_checklist'
+const WELCOME_KEY = 'asr_welcome_seen'
 
 const CHECKLIST_ITEMS = [
   { key: 'upload', label: 'Upload your backlog, risk register, and status notes.' },
@@ -75,7 +78,12 @@ const ADAPTER_LABELS: Record<AdapterKey, string> = {
 export default function App() {
   const { data, loading, error, refresh, loadSamples } = useDashboard()
   const { settings, loading: settingsLoading, toggleSafeMode, setAdapterMode, sanityCheck } = useSettings()
-  const [tourOpen, setTourOpen] = useState<boolean>(() => localStorage.getItem(ONBOARDING_KEY) !== 'done')
+  const [tourOpen, setTourOpen] = useState<boolean>(() => {
+    if (typeof window === 'undefined') {
+      return false
+    }
+    return localStorage.getItem(ONBOARDING_KEY) !== 'done'
+  })
   const [tourStep, setTourStep] = useState(0)
   const toastTimer = useRef<number | null>(null)
   const [toast, setToast] = useState<ToastConfig | null>(null)
@@ -85,6 +93,14 @@ export default function App() {
   const [uploading, setUploading] = useState(false)
   const [dryRunning, setDryRunning] = useState(false)
   const [shortcutsOpen, setShortcutsOpen] = useState(false)
+  const [welcomeOpen, setWelcomeOpen] = useState<boolean>(() => {
+    if (typeof window === 'undefined') {
+      return false
+    }
+    return localStorage.getItem(WELCOME_KEY) !== 'done'
+  })
+  const [guidedLoading, setGuidedLoading] = useState(false)
+  const guidedSectionRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     saveChecklist(checklist)
@@ -132,9 +148,16 @@ export default function App() {
     setToast(null)
   }, [])
 
-  const markChecklist = (key: string) => {
+  const markChecklist = useCallback((key: string) => {
     setChecklist((prev) => ({ ...prev, [key]: true }))
-  }
+  }, [])
+
+  const acknowledgeWelcome = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(WELCOME_KEY, 'done')
+    }
+    setWelcomeOpen(false)
+  }, [])
 
   const focusUploadForm = useCallback(() => {
     const target = document.getElementById('dataset-upload-form')
@@ -143,6 +166,14 @@ export default function App() {
     }
     const input = document.querySelector<HTMLInputElement>('#dataset-upload-form input[name="tasks"]')
     input?.focus()
+  }, [])
+
+  const focusGuidedMode = useCallback(() => {
+    const target = guidedSectionRef.current
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      target.focus({ preventScroll: true })
+    }
   }, [])
 
   const handleTourNext = () => {
@@ -204,6 +235,23 @@ export default function App() {
     },
     [dismissToast, showToast],
   )
+
+  const handleWelcomeGuided = useCallback(() => {
+    acknowledgeWelcome()
+    focusGuidedMode()
+  }, [acknowledgeWelcome, focusGuidedMode])
+
+  const handleWelcomeUpload = useCallback(() => {
+    acknowledgeWelcome()
+    focusUploadForm()
+  }, [acknowledgeWelcome, focusUploadForm])
+
+  const handleWelcomeLearnMore = useCallback(() => {
+    acknowledgeWelcome()
+    if (typeof window !== 'undefined') {
+      window.open('https://github.com/jlov7/ASR-Copilot/blob/main/WHY.md', '_blank', 'noopener')
+    }
+  }, [acknowledgeWelcome])
 
   const handleExport = async () => {
     if (!data) return
@@ -270,6 +318,7 @@ export default function App() {
   }
 
   const handleSampleLoad = async () => {
+    acknowledgeWelcome()
     await loadSamples()
     showToast({
       message: 'Sample program loaded. Dashboard ready.',
@@ -277,6 +326,31 @@ export default function App() {
     })
     markChecklist('upload')
   }
+
+  const handleGuidedScenarioLaunch = useCallback(
+    async (scenario: GuidedScenario) => {
+      acknowledgeWelcome()
+      setGuidedLoading(true)
+      try {
+        await loadSamples({ scenario: scenario.id, seed: scenario.seed })
+        showToast({
+          message: `${scenario.title} scenario loaded. Dashboard ready.`,
+          tone: 'success',
+        })
+        markChecklist('upload')
+      } catch (error) {
+        console.error('Guided scenario load failed', error)
+        showToast({
+          message: 'Unable to load guided scenario. Check logs for details.',
+          tone: 'error',
+          durationMs: 6000,
+        })
+      } finally {
+        setGuidedLoading(false)
+      }
+    },
+    [acknowledgeWelcome, loadSamples, markChecklist, showToast],
+  )
 
   const handleUpload = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -462,6 +536,14 @@ export default function App() {
         />
       )}
 
+      <WelcomeModal
+        open={welcomeOpen}
+        onClose={acknowledgeWelcome}
+        onGuided={handleWelcomeGuided}
+        onUpload={handleWelcomeUpload}
+        onLearnMore={handleWelcomeLearnMore}
+      />
+
       <header className="top-nav">
         <div className="brand">
           <h1>ASR Copilot</h1>
@@ -517,6 +599,7 @@ export default function App() {
 
       {showEmptyTiles && (
         <EmptyStateTiles
+          onShowGuided={focusGuidedMode}
           onLoadSample={handleSampleLoad}
           onFocusUpload={focusUploadForm}
           safeModeDocUrl={SAFE_MODE_DOC_URL}
@@ -526,21 +609,33 @@ export default function App() {
       <section className="hero">
         <div>
           <h2>Automate your status rituals.</h2>
-          <p className="hero-copy">{heroSubtitle}</p>
+          <p className="hero-lede">
+            <strong>See it in 15 seconds</strong> → Click <span className="hero-highlight">Guided Mode</span> below (no files needed).
+          </p>
+          <p className="hero-copy">
+            ASR Copilot turns weekly status drudgery into a 3-minute executive update: <em>health (RAG)</em> → <em>EVM (CPI/SPI)</em> →{' '}
+            <em>Top risks</em> → <em>What changed</em> → <em>1-click export</em>.
+          </p>
+          <p className="hero-safety">
+            <strong>No integrations.</strong> Safe Mode by default. Deterministic analytics.
+          </p>
+          <p className="hero-meta">{heroSubtitle}</p>
           <div className="cta-group">
-            <button
-              className="button primary"
-              onClick={() => setTourOpen(true)}
-              title="Five-step script: upload → gauges → risks → timeline → ROI."
-            >
-              Start guided tour
+            <button className="button primary" onClick={handleWelcomeGuided} title="Scroll to Guided Mode and launch a scenario instantly.">
+              Open Guided Mode
+            </button>
+            <button className="button secondary" onClick={handleWelcomeUpload} title="Jump to the upload form and process your own artifacts.">
+              Process your files
             </button>
             <button
-              className="button secondary"
-              onClick={handleSampleLoad}
-              title="Load the bundled telecom program so you can present in seconds."
+              className="button ghost"
+              onClick={() => {
+                acknowledgeWelcome()
+                handleReplayTour()
+              }}
+              title="Walk through the five-step onboarding overlays."
             >
-              Try with sample data
+              Start guided tour
             </button>
           </div>
         </div>
@@ -549,6 +644,10 @@ export default function App() {
           {checklistEntries}
         </div>
       </section>
+
+      <div ref={guidedSectionRef} className="guided-anchor" tabIndex={-1}>
+        <GuidedMode busy={guidedLoading} onLaunchScenario={handleGuidedScenarioLaunch} />
+      </div>
 
       <section className="upload-panel" aria-labelledby="upload-heading">
         <h3 id="upload-heading">Upload your data</h3>

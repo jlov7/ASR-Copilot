@@ -26,7 +26,7 @@ def build_dashboard_payload(
     changes = generate_changes(previous_snapshot, snapshot)
     metrics = calculate_metrics(snapshot.tasks, snapshot.baseline)
     evm = EvmMetrics(**metrics)
-    risks = summarize_risks(snapshot.risks)
+    risks = summarize_risks(snapshot.risks, as_of=snapshot.last_updated.date())
     preset, modifiers, assumptions = roi_core.load_state(settings.roi_settings_path)
     roi_snapshot = roi_core.compute_roi(preset, modifiers, assumptions)
     narrative = build_narrative(evm, risks, changes)

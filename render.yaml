@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: asr-copilot-demo
+    env: python
+    plan: free
+    region: oregon
+    buildCommand: |
+      pip install -r requirements.txt
+      npm install --prefix app/frontend
+      npm run build --prefix app/frontend
+    startCommand: uvicorn app.backend.main:app --host 0.0.0.0 --port $PORT
+    autoDeploy: false
+    envVars:
+      - key: ASR_SAFE_MODE
+        value: "true"
+      - key: ADAPTER_MODE
+        value: "mock"
+      - key: PYTHONPATH
+        value: .

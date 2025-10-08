@@ -1,0 +1,5 @@
+id,summary,probability,impact,owner,due,mitigation
+CPR-01,Firmware recall impacts certification timeline,0.45,4,Hardware Lead,2024-03-04,Engage vendor escalation channel; preload fallback firmware for pilots.
+CPR-02,Customer comms templates delayed pending legal review,0.5,3,Customer Success,2024-02-29,Schedule daily review with legal and pre-approve FAQ responses.
+CPR-03,Field crews overbooked during pilot weeks,0.35,4,Field Ops Director,2024-03-11,Align on flex crews and secure overtime budget as contingency.
+CPR-04,Reverse logistics contract not finalized,0.25,3,Sourcing Lead,2024-03-22,Issue short-term bridge contract with existing logistics provider.

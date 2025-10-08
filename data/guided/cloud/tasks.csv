@@ -1,0 +1,11 @@
+id,title,owner,status,start,finish,planned_hours,actual_hours,blocked,dependency_ids
+CM-101,Program kickoff & wave planning,Jordan Miles,Complete,2024-02-05,2024-02-16,80,78,false,
+CM-102,Application portfolio assessment,Lina Chen,In Progress,2024-02-19,2024-03-08,120,90,false,CM-101
+CM-103,Landing zone hardening (security & logging),Owen Patel,In Progress,2024-02-26,2024-03-22,140,96,false,CM-101
+CM-104,Network connectivity validation,Ashley Reed,In Progress,2024-03-04,2024-03-29,110,64,true,CM-103
+CM-105,Cutover tooling dry run (automation scripts),Farah Singh,Not Started,2024-03-18,2024-04-12,100,0,false,CM-102;CM-104
+CM-106,Wave 1 migration rehearsal,Diego Ramos,Not Started,2024-04-01,2024-05-10,160,0,false,CM-105
+CM-107,Wave 1 go-live (pilot division),Diego Ramos,Not Started,2024-05-13,2024-06-07,120,0,false,CM-106
+CM-108,Wave 2 readiness backlog,Kiera Holt,Not Started,2024-05-20,2024-06-28,140,0,false,CM-107
+CM-109,Operations handoff & training,Nadia Flores,Not Started,2024-06-10,2024-07-05,80,0,false,CM-108
+CM-110,Optimization backlog triage,Soren Blake,Not Started,2024-06-17,2024-07-19,90,0,false,CM-108

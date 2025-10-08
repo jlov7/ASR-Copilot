@@ -1,0 +1,11 @@
+id,title,owner,status,start,finish,planned_hours,actual_hours,blocked,dependency_ids
+CPE-101,Program mobilization & vendor alignment,Amelia Brooks,Complete,2024-01-15,2024-01-26,70,68,false,
+CPE-102,Regional inventory & customer segmentation,Tyrese Moore,In Progress,2024-01-29,2024-02-23,130,94,false,CPE-101
+CPE-103,Firmware certification across SKUs,Lily Duarte,In Progress,2024-02-05,2024-03-01,120,88,true,CPE-102
+CPE-104,Customer comms & legal approvals,Grace Muller,In Progress,2024-02-12,2024-03-08,90,52,false,CPE-101
+CPE-105,Field crew training playbook,David Khan,Not Started,2024-02-19,2024-03-15,100,0,false,CPE-103
+CPE-106,Pilot device swap – North region,Noah Bryant,Not Started,2024-03-04,2024-04-05,140,0,false,CPE-105
+CPE-107,Pilot device swap – South region,Maria Torres,Not Started,2024-03-11,2024-04-12,140,0,false,CPE-105
+CPE-108,Legacy device return logistics,Sasha Patel,Not Started,2024-03-18,2024-04-26,110,0,false,CPE-106;CPE-107
+CPE-109,Mass rollout scheduling & comms,Kai Morgan,Not Started,2024-04-01,2024-05-10,160,0,false,CPE-108
+CPE-110,Executive steering readout,Amelia Brooks,Not Started,2024-04-08,2024-05-17,60,0,false,CPE-109

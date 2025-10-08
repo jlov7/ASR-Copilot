@@ -34,7 +34,7 @@ def test_risk_summary_orders_by_severity():
             mitigation=None,
         ),
     ]
-    summary = summarize_risks(risks)
+    summary = summarize_risks(risks, as_of=date(2023, 10, 1))
     assert summary.watchlist_size == 3
     assert summary.top_risks[0].id == "R1"
     assert summary.top_risks[1].id == "R3"
@@ -53,6 +53,6 @@ def test_risk_summary_labels_low_risk():
         due_date=date(2023, 10, 10),
         mitigation=None,
     )
-    summary = summarize_risks([risk])
+    summary = summarize_risks([risk], as_of=date(2023, 10, 1))
     assert summary.top_risks[0].status == "Low"
     assert summary.top_risks[0].severity == 0.2

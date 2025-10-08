@@ -1,15 +1,30 @@
 interface EmptyStateTilesProps {
+  onShowGuided: () => void
   onLoadSample: () => void | Promise<void>
   onFocusUpload: () => void
   safeModeDocUrl: string
 }
 
-export function EmptyStateTiles({ onLoadSample, onFocusUpload, safeModeDocUrl }: EmptyStateTilesProps) {
+export function EmptyStateTiles({ onShowGuided, onLoadSample, onFocusUpload, safeModeDocUrl }: EmptyStateTilesProps) {
   return (
     <section className="empty-tiles" aria-label="Getting started options">
+      <article className="empty-tile" aria-label="Try Guided Mode tile">
+        <h3>Guided Mode (no files)</h3>
+        <p>Pick from curated telecom, cloud, or device scenarios. Safe Mode stays on—perfect for executive click-throughs.</p>
+        <div className="tile-actions">
+          <button
+            className="button primary"
+            type="button"
+            onClick={onShowGuided}
+            title="Scroll to the Guided Mode cards and launch a scenario with one click."
+          >
+            Explore Guided Mode
+          </button>
+        </div>
+      </article>
       <article className="empty-tile" aria-label="Load sample data tile">
-        <h3>Load sample program</h3>
-        <p>Run the demo instantly with curated backlog, risks, and notes. Great for executive walk-throughs.</p>
+        <h3>Classic sample dataset</h3>
+        <p>Prefer the original portfolio? Load the bundled telecom program and follow the guided tour script.</p>
         <div className="tile-actions">
           <button
             className="button primary"

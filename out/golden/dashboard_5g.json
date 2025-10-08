@@ -1,0 +1,315 @@
+{
+  "evm": {
+    "pv": 760.0,
+    "ev": 325.0,
+    "ac": 444.0,
+    "sv": -435.0,
+    "cv": -119.0,
+    "spi": 0.428,
+    "cpi": 0.732,
+    "bac": 1380.0,
+    "eac": 1885.26,
+    "etc": 1441.26,
+    "vac": -505.26,
+    "baseline_date": "2024-03-22"
+  },
+  "risks": {
+    "top_risks": [
+      {
+        "id": "R-201",
+        "summary": "Vendor B radio units arriving 3 weeks late",
+        "probability": 0.55,
+        "impact": 5,
+        "severity": 2.75,
+        "due_date": "2024-03-04",
+        "owner": "Priya Raman",
+        "mitigation": "Escalate to vendor exec sponsor; pull ahead buffer stock via contingency PO.",
+        "status": "High",
+        "days_to_due": -11
+      },
+      {
+        "id": "R-203",
+        "summary": "OSS API regression delays automation",
+        "probability": 0.4,
+        "impact": 4,
+        "severity": 1.6,
+        "due_date": "2024-03-18",
+        "owner": "Jerry Wu",
+        "mitigation": "Expand automated tests and add shadow environment smoke runs.",
+        "status": "Medium",
+        "days_to_due": 3
+      },
+      {
+        "id": "R-202",
+        "summary": "Transport swap maintenance window overrun",
+        "probability": 0.35,
+        "impact": 4,
+        "severity": 1.4,
+        "due_date": "2024-02-27",
+        "owner": "Noah Bennett",
+        "mitigation": "Stage rollback plan and pre-approve overtime with NOC.",
+        "status": "Low",
+        "days_to_due": -17
+      },
+      {
+        "id": "R-205",
+        "summary": "Change advisory board rejects migration plan",
+        "probability": 0.2,
+        "impact": 5,
+        "severity": 1.0,
+        "due_date": "2024-04-22",
+        "owner": "Leah Chen",
+        "mitigation": "Pre-brief CAB reviewers and align on risk mitigations one sprint earlier.",
+        "status": "Low",
+        "days_to_due": 38
+      },
+      {
+        "id": "R-204",
+        "summary": "Edge integration lab capacity constraints",
+        "probability": 0.3,
+        "impact": 3,
+        "severity": 0.9,
+        "due_date": "2024-03-11",
+        "owner": "Zara Hayes",
+        "mitigation": "Increase shared lab hours; schedule overnight lab access with vendors.",
+        "status": "Low",
+        "days_to_due": -4
+      }
+    ],
+    "heatmap": [
+      {
+        "id": "R-201",
+        "probability": 0.55,
+        "impact": 5,
+        "severity": 2.75,
+        "summary": "Vendor B radio units arriving 3 weeks late"
+      },
+      {
+        "id": "R-203",
+        "probability": 0.4,
+        "impact": 4,
+        "severity": 1.6,
+        "summary": "OSS API regression delays automation"
+      },
+      {
+        "id": "R-202",
+        "probability": 0.35,
+        "impact": 4,
+        "severity": 1.4,
+        "summary": "Transport swap maintenance window overrun"
+      },
+      {
+        "id": "R-205",
+        "probability": 0.2,
+        "impact": 5,
+        "severity": 1.0,
+        "summary": "Change advisory board rejects migration plan"
+      },
+      {
+        "id": "R-204",
+        "probability": 0.3,
+        "impact": 3,
+        "severity": 0.9,
+        "summary": "Edge integration lab capacity constraints"
+      }
+    ],
+    "watchlist_size": 5
+  },
+  "changes": {
+    "items": [
+      {
+        "id": "initial-load",
+        "entity_type": "note",
+        "change_type": "added",
+        "title": "Initial dataset",
+        "detail": "First dataset uploaded; baselining established.",
+        "timestamp": "2024-03-15T12:00:00"
+      }
+    ],
+    "has_changes": true
+  },
+  "roi": {
+    "annual_savings": 35280.0,
+    "monthly_savings": 2940.0,
+    "total_hours_saved": 360.0,
+    "assumptions": [
+      {
+        "task_name": "Status assembly",
+        "frequency_per_month": 4.0,
+        "hours_saved": 4.0,
+        "pm_hourly_cost": 95.0,
+        "team_size": 1
+      },
+      {
+        "task_name": "Risk register grooming",
+        "frequency_per_month": 2.0,
+        "hours_saved": 2.5,
+        "pm_hourly_cost": 95.0,
+        "team_size": 1
+      },
+      {
+        "task_name": "Executive deck formatting",
+        "frequency_per_month": 1.0,
+        "hours_saved": 6.0,
+        "pm_hourly_cost": 105.0,
+        "team_size": 1
+      },
+      {
+        "task_name": "Stakeholder escalation prep",
+        "frequency_per_month": 1.0,
+        "hours_saved": 3.0,
+        "pm_hourly_cost": 105.0,
+        "team_size": 1
+      }
+    ],
+    "selected_preset": "medium",
+    "modifiers": {
+      "time_saved_multiplier": 1.0,
+      "frequency_multiplier": 1.0
+    },
+    "available_presets": [
+      {
+        "name": "low",
+        "label": "Low complexity PMO",
+        "description": "Single tower delivery, monthly reporting cadence, minimal executive formatting.",
+        "assumptions": [
+          {
+            "task_name": "Status assembly",
+            "frequency_per_month": 2.0,
+            "hours_saved": 2.5,
+            "pm_hourly_cost": 85.0,
+            "team_size": 1
+          },
+          {
+            "task_name": "Risk register grooming",
+            "frequency_per_month": 1.0,
+            "hours_saved": 1.5,
+            "pm_hourly_cost": 85.0,
+            "team_size": 1
+          },
+          {
+            "task_name": "Executive deck formatting",
+            "frequency_per_month": 0.5,
+            "hours_saved": 3.0,
+            "pm_hourly_cost": 95.0,
+            "team_size": 1
+          }
+        ]
+      },
+      {
+        "name": "medium",
+        "label": "Medium complexity PMO",
+        "description": "Three workstreams, weekly status cycles, standard exec read-out.",
+        "assumptions": [
+          {
+            "task_name": "Status assembly",
+            "frequency_per_month": 4.0,
+            "hours_saved": 4.0,
+            "pm_hourly_cost": 95.0,
+            "team_size": 1
+          },
+          {
+            "task_name": "Risk register grooming",
+            "frequency_per_month": 2.0,
+            "hours_saved": 2.5,
+            "pm_hourly_cost": 95.0,
+            "team_size": 1
+          },
+          {
+            "task_name": "Executive deck formatting",
+            "frequency_per_month": 1.0,
+            "hours_saved": 6.0,
+            "pm_hourly_cost": 105.0,
+            "team_size": 1
+          },
+          {
+            "task_name": "Stakeholder escalation prep",
+            "frequency_per_month": 1.0,
+            "hours_saved": 3.0,
+            "pm_hourly_cost": 105.0,
+            "team_size": 1
+          }
+        ]
+      },
+      {
+        "name": "high",
+        "label": "High complexity PMO",
+        "description": "Multi-region launch with weekly steering and heavy executive packaging.",
+        "assumptions": [
+          {
+            "task_name": "Status assembly",
+            "frequency_per_month": 6.0,
+            "hours_saved": 5.0,
+            "pm_hourly_cost": 110.0,
+            "team_size": 2
+          },
+          {
+            "task_name": "Risk register grooming",
+            "frequency_per_month": 4.0,
+            "hours_saved": 3.5,
+            "pm_hourly_cost": 105.0,
+            "team_size": 2
+          },
+          {
+            "task_name": "Executive deck formatting",
+            "frequency_per_month": 2.0,
+            "hours_saved": 7.0,
+            "pm_hourly_cost": 120.0,
+            "team_size": 2
+          },
+          {
+            "task_name": "Steering committee analytics",
+            "frequency_per_month": 2.0,
+            "hours_saved": 4.0,
+            "pm_hourly_cost": 120.0,
+            "team_size": 2
+          }
+        ]
+      }
+    ]
+  },
+  "narrative": "Status: At Risk. CPI 0.732 / SPI 0.428 (baseline 2024-03-22). Top risk: Vendor B radio units arriving 3 weeks late (severity 2.75, due 2024-03-04). Mitigation: Escalate to vendor exec sponsor; pull ahead buffer stock via contingency PO. Latest change: Note added \u2013 Initial dataset.",
+  "meta": {
+    "dataset_hash": "4b1dec3ab62a1790a2e9d6dec98e2903967a301ae711457455fc741f778abd33",
+    "last_updated": "2024-03-15T12:00:00",
+    "safe_mode": true
+  },
+  "automation": {
+    "steps": [
+      {
+        "key": "ingestion",
+        "title": "Ingestion",
+        "status": "pending",
+        "last_run": null,
+        "duration_ms": null,
+        "note": null
+      },
+      {
+        "key": "analytics",
+        "title": "Analytics",
+        "status": "pending",
+        "last_run": null,
+        "duration_ms": null,
+        "note": null
+      },
+      {
+        "key": "narrative",
+        "title": "Narrative",
+        "status": "pending",
+        "last_run": null,
+        "duration_ms": null,
+        "note": null
+      },
+      {
+        "key": "export",
+        "title": "Export",
+        "status": "pending",
+        "last_run": null,
+        "duration_ms": null,
+        "note": null
+      }
+    ],
+    "last_run": null,
+    "trigger": "unknown"
+  }
+}
