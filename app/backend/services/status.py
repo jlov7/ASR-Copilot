@@ -9,7 +9,7 @@ from app.backend.models import (
     DatasetSnapshot,
     EvmMetrics,
 )
-from app.backend.services import cache
+from app.backend.services import automation, cache
 from app.core import roi as roi_core
 from app.core.diffs import generate_changes
 from app.core.evm import calculate_metrics
@@ -35,6 +35,7 @@ def build_dashboard_payload(
         last_updated=snapshot.last_updated,
         safe_mode=settings.safe_mode,
     )
+    automation_status = automation.load_status(settings)
     return DashboardPayload(
         evm=evm,
         risks=risks,
@@ -42,4 +43,5 @@ def build_dashboard_payload(
         roi=roi_snapshot,
         narrative=narrative,
         meta=meta,
+        automation=automation_status,
     )

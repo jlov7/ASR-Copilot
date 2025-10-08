@@ -97,6 +97,9 @@ export function TourModal({ open, stepIndex, onNext, onPrev, onClose }: TourModa
             ))}
           </div>
         </div>
+        <p className="modal-step" aria-live="polite">
+          Step {stepIndex + 1} of {steps.length}
+        </p>
         <article>
           <h3>{step.title}</h3>
           <p>{step.body}</p>

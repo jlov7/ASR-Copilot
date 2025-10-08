@@ -19,3 +19,8 @@ class MockSlackAdapter:
         if files:
             logger.info("Mock Slack attachments: %s", files)
         return True
+
+    def ping(self) -> dict:
+        """Return a canned response for credential checks."""
+        logger.info("Mock Slack ping for channel %s", self.channel)
+        return {"ok": True, "team": "Mock Workspace", "channel": self.channel}

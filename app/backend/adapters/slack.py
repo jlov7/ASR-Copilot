@@ -39,3 +39,12 @@ class SlackAdapter:
         if files:
             logger.info("Files generated for manual sharing: %s", files)
         return True
+
+    def ping(self) -> dict:
+        """Validate Slack credentials via auth.test."""
+        response = self.client.get("/auth.test")
+        response.raise_for_status()
+        data = response.json()
+        if not data.get("ok"):
+            raise httpx.HTTPError(data.get("error", "Slack authentication failed"))
+        return data

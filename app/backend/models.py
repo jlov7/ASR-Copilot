@@ -164,6 +164,32 @@ class RoiUpdateRequest(BaseModel):
     assumptions: List[RoiAssumption]
 
 
+class AutomationStepStatus(BaseModel):
+    key: Literal["ingestion", "analytics", "narrative", "export"]
+    title: str
+    status: Literal["ok", "pending", "error", "mock"]
+    last_run: Optional[datetime]
+    duration_ms: Optional[int]
+    note: Optional[str] = None
+
+
+class AutomationStatus(BaseModel):
+    steps: List[AutomationStepStatus]
+    last_run: Optional[datetime]
+    trigger: Literal["unknown", "upload", "dry_run", "seed"]
+
+
+class AdapterStatus(BaseModel):
+    key: Literal["jira", "slack", "servicenow"]
+    name: str
+    mode: Literal["mock", "live"]
+    safe_mode_blocked: bool
+    live_configured: bool
+    status: Literal["ok", "error", "mock", "unconfigured", "pending"]
+    detail: str
+    last_checked: Optional[datetime]
+
+
 class DashboardMeta(BaseModel):
     dataset_hash: str
     last_updated: datetime
@@ -177,6 +203,7 @@ class DashboardPayload(BaseModel):
     roi: RoiSnapshot
     narrative: str
     meta: DashboardMeta
+    automation: AutomationStatus
 
 
 class StatusPackRequest(BaseModel):

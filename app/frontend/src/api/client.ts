@@ -1,5 +1,7 @@
 import axios from 'axios'
 import type {
+  AdapterStatus,
+  AutomationStatus,
   DashboardPayload,
   RoiSnapshot,
   RoiUpdateRequest,
@@ -53,12 +55,42 @@ export async function updateSafeMode(safeMode: boolean): Promise<SettingsState> 
   return data
 }
 
+export async function updateAdapterMode(
+  adapter: 'jira' | 'slack' | 'servicenow',
+  mode: 'mock' | 'live',
+): Promise<Pick<SettingsState, 'adapter_mode' | 'adapter_modes' | 'adapters'>> {
+  const { data } = await client.post<Pick<SettingsState, 'adapter_mode' | 'adapter_modes' | 'adapters'>>(
+    '/settings/adapter-mode',
+    { adapter, mode },
+  )
+  return data
+}
+
+export async function runAdapterCheck(adapter: 'jira' | 'slack' | 'servicenow'): Promise<AdapterStatus> {
+  const { data } = await client.post<AdapterStatus>('/settings/adapter-check', { adapter })
+  return data
+}
+
+export async function revealExportPath(path: string): Promise<void> {
+  await client.post('/export/reveal', { path })
+}
+
+export async function fetchExportMarkdown(path: string): Promise<string> {
+  const { data } = await client.post<{ content: string }>('/export/markdown', { path })
+  return data.content
+}
+
 export async function uploadDataset(formData: FormData): Promise<UploadResponse> {
   const { data } = await client.post<UploadResponse>('/ingest', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
   })
+  return data
+}
+
+export async function runAutomationDryRun(): Promise<AutomationStatus> {
+  const { data } = await client.post<AutomationStatus>('/automation/dry-run')
   return data
 }
 

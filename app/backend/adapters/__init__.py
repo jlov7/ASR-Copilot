@@ -16,7 +16,7 @@ from .slack import SlackAdapter
 
 
 def get_slack_adapter(settings: Settings):
-    if settings.safe_mode or settings.adapter_mode == "mock":
+    if settings.safe_mode or settings.get_adapter_mode("slack") == "mock":
         return MockSlackAdapter()
     token = os.getenv("SLACK_BOT_TOKEN")
     channel = os.getenv("SLACK_DEFAULT_CHANNEL")
@@ -26,7 +26,7 @@ def get_slack_adapter(settings: Settings):
 
 
 def get_jira_adapter(settings: Settings):
-    if settings.safe_mode or settings.adapter_mode == "mock":
+    if settings.safe_mode or settings.get_adapter_mode("jira") == "mock":
         return MockJiraAdapter(settings.data_dir)
     base_url = os.getenv("JIRA_BASE_URL")
     user = os.getenv("JIRA_USER_EMAIL")
@@ -50,7 +50,7 @@ def get_jira_adapter(settings: Settings):
 
 
 def get_servicenow_adapter(settings: Settings):
-    if settings.safe_mode or settings.adapter_mode == "mock":
+    if settings.safe_mode or settings.get_adapter_mode("servicenow") == "mock":
         return MockServiceNowAdapter(settings.data_dir)
     instance = os.getenv("SERVICENOW_INSTANCE")
     user = os.getenv("SERVICENOW_USER")

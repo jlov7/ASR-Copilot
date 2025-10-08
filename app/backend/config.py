@@ -7,7 +7,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import BaseSettings, Field
+from pydantic import BaseSettings, Field, PrivateAttr
 
 
 class Settings(BaseSettings):
@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     cache_dir: Path = Field(default=Path(".cache"))
     out_dir: Path = Field(default=Path("out"))
     log_dir: Path = Field(default=Path("logs"))
+    _adapter_modes: dict[str, Literal["mock", "live"]] = PrivateAttr(default_factory=dict)
 
     class Config:
         env_file = ".env"
@@ -36,6 +37,8 @@ class Settings(BaseSettings):
                 self.safe_mode = bool(value.get("safe_mode", True))
             except json.JSONDecodeError:
                 override_path.unlink(missing_ok=True)
+        self._adapter_modes.clear()
+        self._load_adapter_modes()
 
     @property
     def current_snapshot_path(self) -> Path:
@@ -62,6 +65,48 @@ class Settings(BaseSettings):
         self.safe_mode_path.write_text(
             json.dumps({"safe_mode": value}, indent=2), encoding="utf-8"
         )
+        self._sync_adapter_mode()
+
+    @property
+    def adapter_config_path(self) -> Path:
+        return self.cache_dir / "adapter_modes.json"
+
+    def _load_adapter_modes(self) -> None:
+        default_mode = getattr(self, "adapter_mode", "mock")
+        path = self.adapter_config_path
+        modes: dict[str, Literal["mock", "live"]] = {}
+        if path.exists():
+            try:
+                payload = json.loads(path.read_text(encoding="utf-8"))
+                for key in ("jira", "slack", "servicenow"):
+                    raw = payload.get(key, default_mode)
+                    modes[key] = "live" if raw == "live" else "mock"
+            except json.JSONDecodeError:
+                path.unlink(missing_ok=True)
+                modes = {}
+        if not modes:
+            modes = {key: default_mode for key in ("jira", "slack", "servicenow")}
+            path.write_text(json.dumps(modes, indent=2), encoding="utf-8")
+        self._adapter_modes = modes
+        self._sync_adapter_mode()
+
+    def _sync_adapter_mode(self) -> None:
+        aggregate = "live" if any(mode == "live" for mode in self._adapter_modes.values()) else "mock"
+        object.__setattr__(self, "adapter_mode", aggregate)
+
+    def get_adapter_mode(self, key: str) -> Literal["mock", "live"]:
+        return self._adapter_modes.get(key, "mock")
+
+    def persist_adapter_mode(self, key: str, mode: Literal["mock", "live"]) -> None:
+        if key not in ("jira", "slack", "servicenow"):
+            raise ValueError(f"Unknown adapter key: {key}")
+        self._adapter_modes[key] = mode
+        self.adapter_config_path.write_text(json.dumps(self._adapter_modes, indent=2), encoding="utf-8")
+        self._sync_adapter_mode()
+
+    @property
+    def adapter_modes(self) -> dict[str, Literal["mock", "live"]]:
+        return dict(self._adapter_modes)
 
 
 @lru_cache(maxsize=1)

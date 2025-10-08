@@ -1,0 +1,12 @@
+# Default reviewers
+* @jlov7 @autonomy-ai
+
+# Frontend
+app/frontend/ @jlov7 @autonomy-ai
+
+# Backend adapters
+app/backend/adapters/ @jlov7 @autonomy-ai
+
+# Documentation
+README.md @jlov7
+WHY.md @jlov7

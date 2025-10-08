@@ -1,0 +1,6 @@
+blank_issues_enabled: false
+template_folder: .github/ISSUE_TEMPLATE
+contact_links:
+  - name: Demo feedback
+    url: https://github.com/jlov7/ASR-Copilot/discussions
+    about: Share demo learnings and roadmap feedback

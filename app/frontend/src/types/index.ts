@@ -76,6 +76,21 @@ export interface RoiPreset {
   assumptions: RoiAssumption[]
 }
 
+export interface AutomationStepStatus {
+  key: 'ingestion' | 'analytics' | 'narrative' | 'export'
+  title: string
+  status: 'ok' | 'pending' | 'error' | 'mock'
+  last_run: string | null
+  duration_ms: number | null
+  note?: string | null
+}
+
+export interface AutomationStatus {
+  steps: AutomationStepStatus[]
+  last_run: string | null
+  trigger: 'unknown' | 'upload' | 'dry_run' | 'seed'
+}
+
 export interface RoiSnapshot {
   annual_savings: number
   monthly_savings: number
@@ -105,6 +120,7 @@ export interface DashboardPayload {
   roi: RoiSnapshot
   narrative: string
   meta: DashboardMeta
+  automation: AutomationStatus
 }
 
 export interface UploadResponse {
@@ -128,9 +144,22 @@ export interface StatusPackResult {
   dataset_hash: string
 }
 
+export interface AdapterStatus {
+  key: 'jira' | 'slack' | 'servicenow'
+  name: string
+  mode: 'mock' | 'live'
+  safe_mode_blocked: boolean
+  live_configured: boolean
+  status: 'ok' | 'error' | 'mock' | 'unconfigured' | 'pending'
+  detail: string
+  last_checked: string | null
+}
+
 export interface SettingsState {
   safe_mode: boolean
   adapter_mode: 'mock' | 'live'
+  adapter_modes?: Record<'jira' | 'slack' | 'servicenow', 'mock' | 'live'>
+  adapters?: AdapterStatus[]
 }
 
 export interface DashboardState {

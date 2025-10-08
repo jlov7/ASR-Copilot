@@ -4,12 +4,20 @@
 
 ASR Copilot (Autonomy–Status–Risk Copilot) is a production-quality proof-of-concept that automates the most time-consuming, rationalizable PM workflows for enterprise TMT/Telco programs. It ingests CSV/Markdown status artifacts (no credentials required), computes earned value metrics, surfaces a live risk watchlist, narrates what changed since yesterday, and assembles a shareable executive status pack with a single click.
 
-> **Why ASR Copilot**  
-> Enterprise PMs spend **~3–4 hours/week** assembling status reports and chasing risk updates. ASR Copilot automates the boring parts—**without any integrations**—so leaders get consistent, auditable updates and PMs reclaim time.
+> **ASR Copilot in 30 seconds**
+> - **Solves:** Weekly status drudgery, late surfacing of schedule/cost risk, and manually authored exec packs.
+> - **Demo shows:** Upload or load samples → RAG/EVM → Top 5 risks → “what changed” → ROI → 1-click export.
+> - **Extend next:** Turn on adapters (read-only), add metrics/cards, or schedule safe daily runs.
+
+[📈 Why this matters](WHY.md)
+
+![ASR Copilot demo path](docs/media/demo-flow.gif)
 
 | Before | After (ASR Copilot) | Impact example (tunable) |
 | --- | --- | --- |
 | Manual aggregation of spreadsheets, inconsistent narratives, risks discovered late (3–4 hrs/week/PM). | Upload CSV/MD → CPI/SPI gauges + risk deltas + “what changed” timeline → one-click executive status pack (minutes). | 30 PMs × 3.5 hrs/week × $120/hr × 48 wks ≈ **$604,800/yr**. A 70% reduction via ASR Copilot ≈ **$423,360/yr** reclaimed (adjust in the ROI panel). |
+
+**Screenshot gallery:** `docs/SCREENSHOTS/landing.png`, `tour-step.png`, `evm.png`, `risks.png`, `roi.png`, `export-toast.png`
 
 ## Why it matters
 Program managers in large enterprises spend 8–12 hours per week aggregating status, chasing risks, and preparing exec-ready updates. ASR Copilot shrinks that cycle to minutes by:
@@ -29,13 +37,17 @@ Program managers in large enterprises spend 8–12 hours per week aggregating st
 - **Status Pack exports**: Generates Markdown + PNG charts in `/out/` and optionally posts to Slack when credentials exist.
 - **Adapters**: Mock Jira/Slack/ServiceNow providers ship by default; live adapters activate via `.env` tokens.
 - **Safety-first**: Local-first storage, Safe Mode toggle to disable outbound calls, and deterministic summarization.
+- **Automation loop**: Visual runbook tracks Ingestion → Analytics → Narrative → Export, with one-click dry runs for stakeholders.
+- **Adapters control**: Guided panel to switch mock/live modes, run sanity checks, and highlight Safe Mode guardrails.
+- **Presenter shortcuts**: Hit `Shift + ?` during the demo to reveal keyboard shortcuts (tour, sample load, export, dry-run).
 
-## See it in action
-![Dashboard overview](docs/media/dashboard.png)
-
-![Status pack export](docs/media/status-pack.png)
-
-![Demo flow preview](docs/media/demo-flow.gif)
+## Screenshot gallery
+![Landing page](docs/SCREENSHOTS/landing.png)
+![Guided tour step](docs/SCREENSHOTS/tour-step.png)
+![EVM gauges and RAG](docs/SCREENSHOTS/evm.png)
+![Risk watchlist](docs/SCREENSHOTS/risks.png)
+![ROI panel](docs/SCREENSHOTS/roi.png)
+![Export toast](docs/SCREENSHOTS/export-toast.png)
 
 ## Architecture snapshot
 - **Backend**: FastAPI (Python 3.10+) with Pydantic contracts, modular `app/core` analytics (EVM, risks, diffs, summarizer), adapter layer, and status pack exporter.
@@ -67,16 +79,19 @@ Program managers in large enterprises spend 8–12 hours per week aggregating st
    ./scripts/run_demo.sh
    ```
    The script boots FastAPI at `http://127.0.0.1:8000` and Vite at `http://127.0.0.1:5173`, preloads sample data, and opens the dashboard.
+    - **Windows PowerShell:** `.\app\scripts\run_demo.ps1`
 
 ### Option B – Docker Compose (no local installs)
-```bash
-docker-compose up --build
-```
-Backend is available on `http://localhost:8000`, frontend on `http://localhost:5173`.
+1. Build and run:
+   ```bash
+   docker compose -f compose.yaml up --build
+   ```
+2. Visit `http://localhost:5173` (frontend) and `http://localhost:8000` (backend). The compose file mounts `data/samples`, `out/`, and `logs/` so exports persist on the host.
 
 ### Option C – GitHub Codespaces / Dev Containers
 - Click the “Open in Codespaces” badge above or run `gh codespace create --repo jlov7/ASR-Copilot`.
 - The devcontainer installs Python + Node dependencies automatically; use `./app/scripts/run_demo.sh` inside the Codespace.
+- To use locally with VS Code Dev Containers or Docker Desktop, open the repo in a devcontainer and run `make demo`.
 
 ## Vite + React rationale
 - Granular control over accessibility and onboarding flows.
@@ -84,15 +99,7 @@ Backend is available on `http://localhost:8000`, frontend on `http://localhost:5
 - Supports progressive enhancements (tour, skeleton loaders) without heavy frameworks.
 
 ## Demo script (≈3 minutes)
-1. Launch `./app/scripts/run_demo.sh` (ensures sample datasets copied, services started in Safe Mode).
-2. In the browser landing page, click “Start the tour” to walk through five onboarding steps.
-3. Use the “Load sample data” CTA to populate the dashboard.
-4. Narrate the network modernization storyline: three workstreams (core backbone, RAN, OSS/BSS) and two vendors with intertwined dependencies.
-5. Highlight the RAG banner showing CPI/SPI pressure from the RAN shipment slip; call out the late-delivery risk with its mitigation.
-6. Review Top 5 risks and the dependency-heavy migration dry run chain using the timeline view.
-7. Adjust ROI complexity presets (e.g., switch from Medium to High) and tweak sensitivity sliders to illustrate annual savings swings.
-8. Click “Export Status Pack” to generate Markdown + PNG charts; confirm `/out/` gains `status_pack_<timestamp>.md`.
-9. (Optional) Demonstrate Safe Mode toggle and explain live adapter enablement.
+Grab the presenter-ready flow in `docs/DEMO-SCRIPT.md`. It mirrors the GIF: tour → load sample → health + risks → timeline → ROI → export toast. Each step includes plain-English narration so any teammate can deliver the demo confidently.
 
 ## Project layout (high level)
 ```
@@ -111,10 +118,15 @@ data/samples/
 A detailed tree lives in `docs/ARCHITECTURE.md`.
 
 ### Documentation quick links
+- [WHY.md](WHY.md) – value story, before/after table, autonomy ladder  
 - [docs/PRD.md](docs/PRD.md) – problem statement, personas, acceptance criteria  
 - [docs/PLAN.md](docs/PLAN.md) – milestones, risks, demo coordination  
 - [docs/AGENTS.md](docs/AGENTS.md) – agent roles, triggers, and guardrails  
 - [docs/DATA-SCHEMA.md](docs/DATA-SCHEMA.md) – CSV/Markdown contracts, EVM formulas, sample data dictionary  
+- [docs/EVM-PRIMER.md](docs/EVM-PRIMER.md) – CPI/SPI primer with worked example  
+- [docs/EXTENDING.md](docs/EXTENDING.md) – how to add adapters, metrics, and cards  
+- [docs/DEMO-SCRIPT.md](docs/DEMO-SCRIPT.md) – presenter-ready 3-minute flow  
+- [docs/ROADMAP.md](docs/ROADMAP.md) – Assist → Orchestrate → Autopilot rollout plan  
 - [docs/DEMOS.md](docs/DEMOS.md) – 3-minute & 10-minute demo walkthroughs  
 - [docs/DEMO-DECK.md](docs/DEMO-DECK.md) – ready-to-present executive pitch deck (Markdown)  
 - [docs/SECURITY.md](docs/SECURITY.md) – STRIDE-lite control set, Safe Mode posture  
@@ -127,11 +139,13 @@ A detailed tree lives in `docs/ARCHITECTURE.md`.
 - Secrets are never stored or logged; redact tokens before sharing logs.
 - For Jira live mode set `JIRA_BASE_URL`, `JIRA_USER_EMAIL`, `JIRA_TOKEN`, `JIRA_PROJECT_KEY`, and optionally `JIRA_JQL_FILTER`/`JIRA_MAX_RESULTS`; then disable Safe Mode to sync read-only backlog data.
 - Run `pytest -m live` to execute Jira integration tests after supplying real credentials.
+- Toggle adapters in-app via **Settings → Adapters**; live mode is disabled until Safe Mode is off and environment variables are present.
 
 ## Testing
-- Run `pytest` for backend analytics and API regression coverage.
-- `npm run test` executes frontend unit tests (Vitest) and accessibility smoke checks.
+- Run `pytest` for backend analytics, automation loop logging, and adapter guardrail coverage.
+- `npm run test -- --run` executes frontend unit tests (Vitest) and accessibility smoke checks.
 - Pre-commit hooks enforce formatting and linting prior to commits.
+- For end-to-end sanity, use `python -m app.scripts.capture_media` to rebuild the demo walkthrough screenshots/GIFs.
 
 ## API reference
 - Swagger UI: `http://localhost:8000/docs`
@@ -148,6 +162,7 @@ A detailed tree lives in `docs/ARCHITECTURE.md`.
 - Share feedback in the `docs/CHANGELOG.md` discussion log to inform the next sprint.
 - File issues for Docker/Codespaces improvements or ecosystem adapters (e.g., ServiceNow change integration).
 - Use the **Refresh Media Assets** workflow (Actions tab) if you tweak the UI and need new screenshots.
+- Issue templates live in `.github/ISSUE_TEMPLATE/`; start with the adapter request template when proposing new integrations.
 
 ## License
 Distributed under the [Apache 2.0 License](LICENSE). See the license file for details and the NOTICE requirements for derivative work.

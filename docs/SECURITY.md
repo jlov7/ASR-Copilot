@@ -14,6 +14,7 @@
 - `.env.example` enumerates optional adapter tokens (`JIRA_TOKEN`, `SLACK_BOT_TOKEN`, `SERVICENOW_TOKEN`).
 - Secrets never checked into source control; gitignore `.env`.
 - Safe Mode prevents any adapters from reading `.env` unless user expressly disables it in UI and restarts backend.
+- Adapter mode changes persist to `.cache/adapter_modes.json` and are surfaced in the UI; Safe Mode keeps adapters in mock mode regardless of the saved preference.
 - Logs redact tokens via middleware; diagnostics exports omit secret-bearing environment variables.
 - Jira live adapter is constrained by configurable JQL (`JIRA_JQL_FILTER`) and `JIRA_MAX_RESULTS` to maintain a minimal read-only footprint when Safe Mode is disabled.
 
@@ -31,6 +32,7 @@
 - Structured logs with level, timestamp, request_id; stored in `logs/app.log` rolling file.
 - Error logs include stack trace and sanitized payload metadata (column names, counts) but no raw data rows.
 - Provide CLI command to tail logs for demo troubleshooting.
+- Automation runs (Ingestion → Analytics → Narrative → Export) are persisted to `logs/automation_loop.json` for auditing and replay in the UI.
 
 ## Secure Coding Practices
 - FastAPI dependency injection for config and Safe Mode enforcement.

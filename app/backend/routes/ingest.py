@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, File, UploadFile
 
 from app.backend.config import Settings, get_settings
 from app.backend.models import UploadResponse
-from app.backend.services import cache
+from app.backend.services import automation, cache
 from app.backend.services.ingestion import (
     ingest_payload,
     load_sample_dataset,
@@ -27,6 +27,7 @@ async def ingest_data(
     """Upload CSV/Markdown artifacts and refresh dataset."""
     snapshot = ingest_payload(tasks, risks, status_notes, evm_baseline)
     cache.save_snapshot(settings, snapshot)
+    automation.record_dataset_refresh(settings, snapshot, trigger="upload")
     return to_upload_response(snapshot)
 
 
@@ -37,6 +38,7 @@ async def load_demo_dataset(
     """Load bundled sample data."""
     snapshot = load_sample_dataset(settings)
     cache.save_snapshot(settings, snapshot)
+    automation.record_dataset_refresh(settings, snapshot, trigger="upload", previous_snapshot=cache.load_previous(settings))
     return to_upload_response(snapshot)
 
 

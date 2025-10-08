@@ -92,6 +92,44 @@ const payload: DashboardPayload = {
       },
     ],
   },
+  automation: {
+    steps: [
+      {
+        key: 'ingestion',
+        title: 'Ingestion',
+        status: 'ok',
+        last_run: '2023-10-05T12:00:00Z',
+        duration_ms: 1200,
+        note: 'Sample dataset loaded.',
+      },
+      {
+        key: 'analytics',
+        title: 'Analytics',
+        status: 'ok',
+        last_run: '2023-10-05T12:00:01Z',
+        duration_ms: 800,
+        note: 'CPI 0.87 / SPI 0.82',
+      },
+      {
+        key: 'narrative',
+        title: 'Narrative',
+        status: 'ok',
+        last_run: '2023-10-05T12:00:02Z',
+        duration_ms: 420,
+        note: 'Narrative refreshed.',
+      },
+      {
+        key: 'export',
+        title: 'Export',
+        status: 'ok',
+        last_run: '2023-10-05T12:00:03Z',
+        duration_ms: 600,
+        note: 'Markdown saved to status_pack.md',
+      },
+    ],
+    last_run: '2023-10-05T12:00:03Z',
+    trigger: 'dry_run',
+  },
   narrative: 'Status: Watch. CPI 0.871 / SPI 0.816.',
   meta: {
     dataset_hash: 'abc',
@@ -110,6 +148,9 @@ describe('DashboardView', () => {
         onExport={vi.fn()}
         onSaveRoi={vi.fn()}
         roiSaving={false}
+        onNotify={vi.fn()}
+        onDryRun={vi.fn()}
+        dryRunning={false}
       />,
     )
 

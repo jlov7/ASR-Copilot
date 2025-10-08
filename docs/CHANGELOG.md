@@ -18,3 +18,14 @@
 6. Adjust ROI assumption (increase frequency) and show updated annual savings.
 7. Export Status Pack, open generated Markdown, and preview PNG charts.
 8. Wrap with compliance story: Safe Mode, local-first storage, documented controls.
+
+## v0.2.0 – Demo polish & agentic upgrades
+- 🎯 Added `WHY.md`, EVM primer, extending guide, demo script, roadmap, and screenshot gallery quick links.
+- 🧭 Guided tour now shows progress breadcrumbs, replay link, and an onboarding checklist.
+- 🧊 Empty state tiles narrate the demo path (load sample, upload data, Safe Mode primer).
+- 📈 Dashboard cards include “Explain this” microcopy; export toast offers reveal + copy actions.
+- 🔄 Automation loop tab visualizes Ingestion → Analytics → Narrative → Export with dry-run simulator.
+- 🛡️ Safe Mode banner upgraded with contextual link; adapters panel controls mock/live modes and sanity checks.
+- 🗂️ Added compose.yaml, Makefile helpers, devcontainer, and Windows PowerShell demo script for zero-friction setups.
+- 📝 Introduced CODEOWNERS, issue/PR templates, and contribution hygiene updates.
+- 🧪 Dashboard tests updated; automation loop logged in `logs/automation_loop.json` for auditability.

@@ -1,24 +1,31 @@
 {
   "name": "ASR Copilot",
-  "image": "mcr.microsoft.com/devcontainers/universal:2",
-  "postCreateCommand": "pip install -r requirements.txt && cd app/frontend && npm install",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "18"
+    }
+  },
+  "forwardPorts": [5173, 8000],
+  "postCreateCommand": "bash -lc 'python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt && cd app/frontend && npm install'",
+  "postStartCommand": "bash -lc 'source .venv/bin/activate && python -m app.scripts.seed_data'",
   "customizations": {
     "vscode": {
+      "settings": {
+        "python.defaultInterpreterPath": "${containerWorkspaceFolder}/.venv/bin/python",
+        "editor.formatOnSave": true,
+        "eslint.workingDirectories": ["./app/frontend"],
+        "files.watcherExclude": {
+          "**/.venv/**": true,
+          "**/node_modules/**": true
+        }
+      },
       "extensions": [
         "ms-python.python",
         "ms-python.vscode-pylance",
         "esbenp.prettier-vscode",
-        "dbaeumer.vscode-eslint",
-        "ms-azuretools.vscode-docker"
+        "dbaeumer.vscode-eslint"
       ]
-    }
-  },
-  "portsAttributes": {
-    "8000": {
-      "label": "FastAPI"
-    },
-    "5173": {
-      "label": "ASR Frontend"
     }
   }
 }

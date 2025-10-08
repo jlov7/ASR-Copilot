@@ -1,15 +1,17 @@
 # Demo Playbooks
 
 ## 3-Minute Walkthrough (default)
-1. **Launch Safe Mode demo** – run `./app/scripts/run_demo.sh`; highlight that no credentials are required.
-2. **Run the guided tour** – click “Start guided tour” and step through the five overlays.
-3. **Load sample data** – press “Try with sample data”; skeleton loaders flip to live metrics.
-4. **Narrate the story** – three workstreams, two vendors, tight dependency chain; CPI/SPI under pressure.
-5. **Top risks** – call out the late-shipment vendor risk and mitigation notes.
-6. **What changed** – show the diff timeline (new risk, updated mitigation).
-7. **ROI panel** – toggle preset from Medium → High, tweak sliders, show savings delta.
-8. **Export** – click “Export Status Pack,” open the generated Markdown in `/out/`.
-9. **Safe Mode reminder** – highlight the header banner and how to enable live adapters later.
+Follow the presenter script in [docs/DEMO-SCRIPT.md](./DEMO-SCRIPT.md). The headline beats:
+1. **Launch Safe Mode demo** – run `./app/scripts/run_demo.sh` (or `./run_demo.ps1` on Windows); highlight that no credentials are required.
+2. **Run the guided tour** – click “Start guided tour,” watch the Step 1 of 5 breadcrumb, and replay link.
+3. **Load sample data** – press “Load sample program”; skeleton loaders flip to live metrics.
+4. **Narrate the story** – three workstreams, two vendors, tight dependency chain; CPI/SPI under pressure with `Explain this` popover.
+5. **Top risks** – draft mitigation from the risk table and show the Automation Loop checks.
+6. **What changed** – toggle “Recent (Top 5)” versus “Full history” and group changes by category to highlight risks vs tasks.
+7. **ROI panel** – toggle presets, tweak sliders, copy assumptions.
+8. **Export** – click “Export Status Pack,” point to the toast path, “Reveal,” and “Copy Markdown.”
+9. **Safe Mode reminder** – highlight the header banner and adapter toggles for future live runs.
+10. **Keyboard cue** – press `Shift + ?` to show the shortcuts panel for presenters who need a script.
 
 ## 10-Minute Executive Briefing
 1. **Context (1 min)** – PMO pain (manual aggregation, slow risk surfacing, inconsistent packs).
@@ -27,5 +29,5 @@
 - Safe Mode banner reassures security; toggle surfaces adapter modal describing read-only scope.
 
 ## Assets
-- Screenshots live under `docs/media/` and are referenced in the README.
-- For recorded demos, reuse `docs/media/demo-flow-placeholder.gif` until real footage is captured.
+- Screenshots live under `docs/SCREENSHOTS/` and map to the README gallery.
+- The animated walkthrough is `docs/media/demo-flow.gif`; regenerate via `python -m app.scripts.capture_media`.

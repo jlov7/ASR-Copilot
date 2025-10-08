@@ -11,7 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.backend.config import get_settings
 from app.backend.logging_config import configure_logging
-from app.backend.routes import analytics, export, ingest, settings
+from app.backend.routes import analytics, automation, export, ingest, settings
 
 
 def create_app() -> FastAPI:
@@ -46,6 +46,7 @@ def create_app() -> FastAPI:
     app.include_router(ingest.router)
     app.include_router(analytics.router)
     app.include_router(export.router)
+    app.include_router(automation.router)
     app.include_router(settings.router)
 
     @app.get("/healthz")

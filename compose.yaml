@@ -1,0 +1,38 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: uvicorn app.backend.main:app --host 0.0.0.0 --port 8000 --reload
+    environment:
+      ASR_SAFE_MODE: "true"
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/workspace
+      - ./data/samples:/workspace/data/samples
+      - ./out:/workspace/out
+      - ./logs:/workspace/logs
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    command: npm run dev -- --host 0.0.0.0 --port 5173
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./app/frontend:/workspace
+      - ./out:/workspace/out
+    environment:
+      VITE_API_BASE: http://backend:8000/api
+    depends_on:
+      - backend
+
+  playwright:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    command: npm run test -- --run
+    working_dir: /workspace/app/frontend
+    profiles: ["ci"]
