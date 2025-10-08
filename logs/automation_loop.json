@@ -379,6 +379,120 @@
           "timestamp": "2025-10-08T16:23:11.894966"
         }
       ]
+    },
+    {
+      "timestamp": "2025-10-08T21:44:33.182814",
+      "trigger": "seed",
+      "steps": [
+        {
+          "key": "ingestion",
+          "title": "Ingestion",
+          "status": "ok",
+          "duration_ms": null,
+          "note": "11 tasks, 5 risks, 3 notes ingested.",
+          "timestamp": "2025-10-08T21:44:33.182814"
+        },
+        {
+          "key": "analytics",
+          "title": "Analytics",
+          "status": "ok",
+          "duration_ms": 0,
+          "note": "CPI 0.73 / SPI 0.43",
+          "timestamp": "2025-10-08T21:44:33.183225"
+        },
+        {
+          "key": "narrative",
+          "title": "Narrative",
+          "status": "ok",
+          "duration_ms": 0,
+          "note": "1 narrative lines drafted.",
+          "timestamp": "2025-10-08T21:44:33.183232"
+        },
+        {
+          "key": "export",
+          "title": "Export",
+          "status": "pending",
+          "duration_ms": null,
+          "note": "Run Export Status Pack to generate Markdown + charts.",
+          "timestamp": "2025-10-08T21:44:33.182814"
+        }
+      ]
+    },
+    {
+      "timestamp": "2025-10-08T21:44:39.885973",
+      "trigger": "seed",
+      "steps": [
+        {
+          "key": "ingestion",
+          "title": "Ingestion",
+          "status": "ok",
+          "duration_ms": null,
+          "note": "11 tasks, 5 risks, 3 notes ingested.",
+          "timestamp": "2025-10-08T21:44:36.515696"
+        },
+        {
+          "key": "analytics",
+          "title": "Analytics",
+          "status": "ok",
+          "duration_ms": 0,
+          "note": "CPI 0.73 / SPI 0.43",
+          "timestamp": "2025-10-08T21:44:36.515949"
+        },
+        {
+          "key": "narrative",
+          "title": "Narrative",
+          "status": "ok",
+          "duration_ms": 0,
+          "note": "1 narrative lines drafted.",
+          "timestamp": "2025-10-08T21:44:36.515958"
+        },
+        {
+          "key": "export",
+          "title": "Export",
+          "status": "ok",
+          "duration_ms": 256,
+          "note": "Markdown status_pack_20251008_214439.md; Charts status_pack_20251008_214439_evm.png, status_pack_20251008_214439_risk_heatmap.png; Skipped Slack (Safe Mode).",
+          "timestamp": "2025-10-08T21:44:39.885979"
+        }
+      ]
+    },
+    {
+      "timestamp": "2025-10-08T21:44:45.915324",
+      "trigger": "seed",
+      "steps": [
+        {
+          "key": "ingestion",
+          "title": "Ingestion",
+          "status": "ok",
+          "duration_ms": null,
+          "note": "11 tasks, 5 risks, 3 notes ingested.",
+          "timestamp": "2025-10-08T21:44:45.915324"
+        },
+        {
+          "key": "analytics",
+          "title": "Analytics",
+          "status": "ok",
+          "duration_ms": 0,
+          "note": "CPI 0.73 / SPI 0.43",
+          "timestamp": "2025-10-08T21:44:45.915488"
+        },
+        {
+          "key": "narrative",
+          "title": "Narrative",
+          "status": "ok",
+          "duration_ms": 0,
+          "note": "1 narrative lines drafted.",
+          "timestamp": "2025-10-08T21:44:45.915499"
+        },
+        {
+          "key": "export",
+          "title": "Export",
+          "status": "pending",
+          "duration_ms": null,
+          "note": "Run Export Status Pack to generate Markdown + charts.",
+          "timestamp": "2025-10-08T21:44:45.915324"
+        }
+      ]
     }
   ]
 }
