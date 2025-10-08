@@ -31,11 +31,11 @@ Program managers in large enterprises spend 8–12 hours per week aggregating st
 - **Safety-first**: Local-first storage, Safe Mode toggle to disable outbound calls, and deterministic summarization.
 
 ## See it in action
-![Dashboard overview](docs/media/dashboard-placeholder.png)
+![Dashboard overview](docs/media/dashboard.png)
 
-![Status pack export](docs/media/status-pack-placeholder.png)
+![Status pack export](docs/media/status-pack.png)
 
-![Demo flow preview](docs/media/demo-flow-placeholder.gif)
+![Demo flow preview](docs/media/demo-flow.gif)
 
 ## Architecture snapshot
 - **Backend**: FastAPI (Python 3.10+) with Pydantic contracts, modular `app/core` analytics (EVM, risks, diffs, summarizer), adapter layer, and status pack exporter.
@@ -116,6 +116,7 @@ A detailed tree lives in `docs/ARCHITECTURE.md`.
 - [docs/AGENTS.md](docs/AGENTS.md) – agent roles, triggers, and guardrails  
 - [docs/DATA-SCHEMA.md](docs/DATA-SCHEMA.md) – CSV/Markdown contracts, EVM formulas, sample data dictionary  
 - [docs/DEMOS.md](docs/DEMOS.md) – 3-minute & 10-minute demo walkthroughs  
+- [docs/DEMO-DECK.md](docs/DEMO-DECK.md) – ready-to-present executive pitch deck (Markdown)  
 - [docs/SECURITY.md](docs/SECURITY.md) – STRIDE-lite control set, Safe Mode posture  
 - [docs/EVALS.md](docs/EVALS.md) – evaluation metrics, ROI scenario table, regression plan  
 - [docs/CHANGELOG.md](docs/CHANGELOG.md) – release history & demo cues
@@ -146,6 +147,7 @@ A detailed tree lives in `docs/ARCHITECTURE.md`.
 - Expand evaluation metrics (latency, cost) using the scaffolding in `docs/EVALS.md`.
 - Share feedback in the `docs/CHANGELOG.md` discussion log to inform the next sprint.
 - File issues for Docker/Codespaces improvements or ecosystem adapters (e.g., ServiceNow change integration).
+- Use the **Refresh Media Assets** workflow (Actions tab) if you tweak the UI and need new screenshots.
 
 ## License
 Distributed under the [Apache 2.0 License](LICENSE). See the license file for details and the NOTICE requirements for derivative work.

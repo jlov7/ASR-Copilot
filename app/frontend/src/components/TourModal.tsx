@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import type { KeyboardEvent, MouseEvent } from 'react'
+import type { KeyboardEvent as ReactKeyboardEvent, MouseEvent } from 'react'
 
 interface TourModalProps {
   open: boolean
@@ -42,7 +42,7 @@ export function TourModal({ open, stepIndex, onNext, onPrev, onClose }: TourModa
     }
   }
 
-  const handleBackdropKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+  const handleBackdropKeyDown = (event: ReactKeyboardEvent<HTMLButtonElement>) => {
     if (event.key === 'Escape') {
       onClose()
     }
@@ -56,16 +56,16 @@ export function TourModal({ open, stepIndex, onNext, onPrev, onClose }: TourModa
     if (open && dialogRef.current) {
       dialogRef.current.focus()
     }
-    function handleKeyDown(event: KeyboardEvent) {
+    const handleWindowKeyDown = (event: globalThis.KeyboardEvent) => {
       if (event.key === 'Escape') {
         onClose()
       }
     }
     if (open) {
-      window.addEventListener('keydown', handleKeyDown)
+      window.addEventListener('keydown', handleWindowKeyDown)
     }
     return () => {
-      window.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('keydown', handleWindowKeyDown)
     }
   }, [open, onClose])
 
