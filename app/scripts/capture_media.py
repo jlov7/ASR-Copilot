@@ -92,7 +92,7 @@ async def main() -> None:
             await hero_section.scroll_into_view_if_needed()
             landing_path = DOC_SCREENSHOTS_DIR / "landing.png"
             await hero_section.screenshot(path=str(landing_path))
-            await page.get_by_role("button", name="Open Guided Mode").click()
+            await page.get_by_role("button", name="Launch Instant Demo").click()
             await page.wait_for_timeout(300)
             await page.get_by_role("button", name="Launch scenario").first.click()
             await page.wait_for_timeout(2000)
@@ -174,7 +174,7 @@ code { background: #f7f9ff; padding: 2px 4px; border-radius: 4px; }
             frames.append(await snapshot("frame-tour-step.png"))
             await page.get_by_role("button", name="Skip tour").click()
             await page.wait_for_timeout(500)
-            await page.get_by_role("button", name="Open Guided Mode").click()
+            await page.get_by_role("button", name="Launch Instant Demo").click()
             await page.wait_for_timeout(300)
             await page.get_by_role("button", name="Launch scenario").first.click()
             await page.wait_for_timeout(1200)

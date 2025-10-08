@@ -9,6 +9,7 @@ import type {
   RoiUpdateRequest,
   RiskListItem,
 } from '../types'
+import { EvmPrimerModal, type PrimerMetric } from './EvmPrimerModal'
 
 interface DashboardViewProps {
   data?: DashboardPayload
@@ -37,10 +38,7 @@ const changeLabel: Record<'added' | 'updated' | 'removed', string> = {
 
 const DOCS_BASE_URL = 'https://github.com/jlov7/ASR-Copilot/blob/main'
 
-const EXPLAIN_COPY: Record<
-  'evm' | 'risks' | 'roi',
-  { title: string; body: string; linkLabel?: string; href?: string }
-> = {
+const EXPLAIN_COPY: Record<'evm' | 'risks', { title: string; body: string; linkLabel?: string; href?: string }> = {
   evm: {
     title: 'How to read program health',
     body: 'We translate CPI (cost) and SPI (schedule) into the RAG pill. ≥1.0 stays green, 0.95 warns amber, and anything under 0.9 means escalate. All numbers come from the baseline CSV you uploaded.',
@@ -52,12 +50,6 @@ const EXPLAIN_COPY: Record<
     body: 'We rank the top five risks by probability × impact so you see the most urgent items first. Severity pills, owners, and due dates read like a talk track for execs.',
     linkLabel: 'See demo talking points',
     href: `${DOCS_BASE_URL}/docs/DEMOS.md`,
-  },
-  roi: {
-    title: 'How to use the ROI panel',
-    body: 'Pick the preset that matches your PMO, then adjust frequency and time multipliers. The summary shows annual dollars and hours reclaimed—perfect for rationalization slides.',
-    linkLabel: 'Read the value story',
-    href: `${DOCS_BASE_URL}/WHY.md`,
   },
 }
 
@@ -117,6 +109,7 @@ export function DashboardView({
 }: DashboardViewProps) {
   const rag = useMemo(() => (data ? ragFromMetrics(data.evm.spi, data.evm.cpi) : 'Watch'), [data])
   const [openExplain, setOpenExplain] = useState<ExplainKey | null>(null)
+  const [primerMetric, setPrimerMetric] = useState<PrimerMetric | null>(null)
   const [localAssumptions, setLocalAssumptions] = useState<RoiAssumption[]>(data?.roi.assumptions ?? [])
   const [selectedPreset, setSelectedPreset] = useState<string>(data?.roi.selected_preset ?? 'medium')
   const [localModifiers, setLocalModifiers] = useState<RoiModifiers>(
@@ -144,6 +137,7 @@ export function DashboardView({
 
   useEffect(() => {
     setOpenExplain(null)
+    setPrimerMetric(null)
   }, [data])
 
   useEffect(() => {
@@ -211,8 +205,28 @@ export function DashboardView({
   }
 
   const preview = useMemo(() => computePreview(localAssumptions, localModifiers), [localAssumptions, localModifiers])
+  const inlineAssumptions = useMemo(
+    () =>
+      localAssumptions.map((assumption) => {
+        const frequency = assumption.frequency_per_month * localModifiers.frequency_multiplier
+        const hoursSaved = assumption.hours_saved * localModifiers.time_saved_multiplier
+        const annualOccurrences = frequency * 12
+        const annualHours = hoursSaved * annualOccurrences * assumption.team_size
+        const annualValue = annualHours * assumption.pm_hourly_cost
+        return {
+          name: assumption.task_name,
+          frequency,
+          hoursSaved,
+          teamSize: assumption.team_size,
+          rate: assumption.pm_hourly_cost,
+          annualHours,
+          annualValue,
+        }
+      }),
+    [localAssumptions, localModifiers],
+  )
 
-  const metrics = data
+  const metrics: Array<{ label: string; value: number; tooltip: string; primerKey?: PrimerMetric }> = data
     ? [
         { label: 'Planned Value (PV)', value: data.evm.pv, tooltip: 'PV (planned value) tracks scheduled work in hours.' },
         { label: 'Earned Value (EV)', value: data.evm.ev, tooltip: 'EV (earned value) reflects completed work weightings.' },
@@ -223,21 +237,20 @@ export function DashboardView({
           label: 'Cost Performance Index (CPI)',
           value: data.evm.cpi ?? 0,
           tooltip: 'CPI = EV ÷ AC; < 1.0 indicates cost pressure.',
-          explain: {
-            text: 'CPI = Earned Value ÷ Actual Cost. Above 1.0 means you are under budget, below 1.0 signals pressure.',
-            href: `${DOCS_BASE_URL}/docs/EVM-PRIMER.md#cost-performance-index`,
-          },
+          primerKey: 'cpi',
         },
         {
           label: 'Schedule Performance Index (SPI)',
           value: data.evm.spi ?? 0,
           tooltip: 'SPI = EV ÷ PV; < 1.0 indicates schedule pressure.',
-          explain: {
-            text: 'SPI = Earned Value ÷ Planned Value. Above 1.0 means you are ahead of schedule.',
-            href: `${DOCS_BASE_URL}/docs/EVM-PRIMER.md#schedule-performance-index`,
-          },
+          primerKey: 'spi',
         },
-        { label: 'Estimate at Completion (EAC)', value: data.evm.eac ?? 0, tooltip: 'EAC = AC + (BAC - EV) ÷ CPI.' },
+        {
+          label: 'Estimate at Completion (EAC)',
+          value: data.evm.eac ?? 0,
+          tooltip: 'EAC = AC + (BAC - EV) ÷ CPI.',
+          primerKey: 'eac',
+        },
       ]
     : []
 
@@ -377,13 +390,25 @@ export function DashboardView({
   const automationTriggerLabel = TRIGGER_LABELS[data.automation.trigger] ?? TRIGGER_LABELS.unknown
 
   return (
-    <div className="dashboard-grid">
+    <>
+      <div className="dashboard-grid">
       <section className="section-card" aria-labelledby="status-heading">
         <div className="status-header">
           <div>
-            <p className={`badge ${rag === 'On Track' ? 'track' : rag === 'Watch' ? 'watch' : 'risk'}`}>
-              Overall RAG: {rag}
-            </p>
+            <div className="rag-row">
+              <p className={`badge ${rag === 'On Track' ? 'track' : rag === 'Watch' ? 'watch' : 'risk'}`}>
+                Overall RAG: {rag}
+              </p>
+              <button
+                type="button"
+                className="info-icon"
+                aria-label="Open EVM primer for RAG"
+                title="How we translate CPI/SPI into the RAG badge."
+                onClick={() => setPrimerMetric('rag')}
+              >
+                <span aria-hidden="true">ℹ️</span>
+              </button>
+            </div>
             <div className="card-heading">
               <h3 id="status-heading">Program health</h3>
               <button
@@ -417,16 +442,16 @@ export function DashboardView({
             <article key={metric.label} className="metric-card" role="listitem" title={metric.tooltip}>
               <div className="metric-card-header">
                 <span className="metric-label">{metric.label}</span>
-                {metric.explain && (
-                  <details className="metric-tooltip">
-                    <summary aria-label={`Explain ${metric.label}`}>ⓘ</summary>
-                    <div className="metric-tooltip-body">
-                      <p>{metric.explain.text}</p>
-                      <a href={metric.explain.href} target="_blank" rel="noreferrer">
-                        Learn more
-                      </a>
-                    </div>
-                  </details>
+                {metric.primerKey && (
+                  <button
+                    type="button"
+                    className="info-icon"
+                    aria-label={`Open EVM primer for ${metric.label}`}
+                    title={`Explain ${metric.label}`}
+                    onClick={() => metric.primerKey && setPrimerMetric(metric.primerKey)}
+                  >
+                    <span aria-hidden="true">ℹ️</span>
+                  </button>
                 )}
               </div>
               <span className="metric-value">
@@ -562,24 +587,40 @@ export function DashboardView({
         ) : (
           <p>No changes detected yet. Once we have at least two uploads, we’ll highlight deltas here.</p>
         )}
+        <p className="timeline-callout">
+          We compare today’s snapshot to yesterday’s to highlight deltas (scope, cost, schedule, risks).
+        </p>
       </section>
 
       <section className="section-card" aria-labelledby="roi-heading">
-        <div className="card-heading">
+        <div className="card-heading roi-card-heading">
           <h3 id="roi-heading">Show me the ROI</h3>
-          <button
-            className="explain-button"
-            type="button"
-            onClick={() => toggleExplain('roi')}
-            aria-expanded={openExplain === 'roi'}
-            aria-controls="roi-explain"
-            title="How to narrate the ROI sliders."
-          >
-            <span aria-hidden="true">ⓘ</span>
-            Explain this
-          </button>
+          <details className="inline-explain" aria-label="Explain the ROI calculation">
+            <summary>Explain this</summary>
+            <div className="inline-explain-body" id="roi-inline-explain">
+              <p>
+                Annual savings = Σ((Hours saved × time multiplier) × team size × (Frequency/mo × frequency multiplier × 12)
+                × hourly rate).
+              </p>
+              <p>
+                Current totals: <strong>{formatCurrency(preview.annual)}</strong> per year /{' '}
+                <strong>{formatHours(preview.hours)}</strong>.
+              </p>
+              <ul className="inline-explain-list">
+                {inlineAssumptions.map((item) => (
+                  <li key={item.name}>
+                    {item.name}: {item.frequency.toFixed(1)}/mo × {item.hoursSaved.toFixed(1)} hrs × team {item.teamSize} ×{' '}
+                    {formatCurrency(item.rate)} = {item.annualHours.toFixed(1)} hrs/year ({formatCurrency(item.annualValue)}).
+                  </li>
+                ))}
+              </ul>
+              <p className="inline-explain-tip">Sliders adjust the time and frequency multipliers before we sum the roll-up.</p>
+              <a href={`${DOCS_BASE_URL}/WHY.md`} target="_blank" rel="noreferrer">
+                Read the ROI value story
+              </a>
+            </div>
+          </details>
         </div>
-        {renderExplain('roi', 'roi-explain')}
         <div className="roi-preset">
           <label htmlFor="roi-preset-select">Complexity preset</label>
           <select id="roi-preset-select" value={selectedPreset} onChange={handlePresetChange}>
@@ -712,6 +753,8 @@ export function DashboardView({
           ))}
         </div>
       </section>
-    </div>
+      </div>
+      {primerMetric && <EvmPrimerModal metric={primerMetric} onClose={() => setPrimerMetric(null)} />}
+    </>
   )
 }

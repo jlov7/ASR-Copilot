@@ -37,9 +37,9 @@ interface GuidedModeProps {
 
 export function GuidedMode({ busy, onLaunchScenario }: GuidedModeProps) {
   return (
-    <section className="guided-mode" aria-labelledby="guided-mode-heading">
+    <section className="guided-mode" aria-labelledby="instant-demo-heading">
       <header className="guided-mode-header">
-        <h3 id="guided-mode-heading">Guided Mode (no files required)</h3>
+        <h3 id="instant-demo-heading">Instant Demo (no files needed)</h3>
         <p>
           Pick a scenario to preload curated backlog, risks, and notes. Safe Mode is locked on—perfect for executive
           previews.

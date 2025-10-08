@@ -9,11 +9,20 @@ import { ShortcutsModal } from './components/ShortcutsModal'
 import { EmptyStateTiles } from './components/EmptyStateTiles'
 import { useDashboard } from './hooks/useDashboard'
 import { useSettings } from './hooks/useSettings'
-import { exportStatusPack, fetchExportMarkdown, revealExportPath, runAutomationDryRun, updateRoi, uploadDataset } from './api/client'
+import {
+  exportStatusPack,
+  fetchExportMarkdown,
+  purgeLocalData,
+  revealExportPath,
+  runAutomationDryRun,
+  updateRoi,
+  uploadDataset,
+} from './api/client'
 import type { RoiUpdateRequest } from './types'
 import { ToastBar } from './components/ToastBar'
 import { GuidedMode, type GuidedScenario } from './features/landing/GuidedMode'
 import { WelcomeModal } from './components/WelcomeModal'
+import { PrivacyPanel } from './components/PrivacyPanel'
 
 const ONBOARDING_KEY = 'asr_onboarding_complete'
 const CHECKLIST_KEY = 'asr_onboarding_checklist'
@@ -100,11 +109,18 @@ export default function App() {
     return localStorage.getItem(WELCOME_KEY) !== 'done'
   })
   const [guidedLoading, setGuidedLoading] = useState(false)
+  const [sampleLoading, setSampleLoading] = useState(false)
+  const [purging, setPurging] = useState(false)
+  const [impactSummary, setImpactSummary] = useState<{ minutes: number } | null>(null)
   const guidedSectionRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     saveChecklist(checklist)
   }, [checklist])
+
+  useEffect(() => {
+    setImpactSummary(null)
+  }, [data?.meta.dataset_hash])
 
   useEffect(() => {
     return () => {
@@ -282,6 +298,15 @@ export default function App() {
         durationMs: null,
         path: displayPath ?? undefined,
       })
+      if (data?.roi) {
+        const timeMultiplier = data.roi.modifiers?.time_saved_multiplier ?? 1
+        const minutesRaw = data.roi.assumptions.reduce((total, assumption) => {
+          const hoursPerOccurrence = assumption.hours_saved * timeMultiplier
+          return total + hoursPerOccurrence * 60 * assumption.team_size
+        }, 0)
+        const roundedMinutes = minutesRaw > 0 ? Math.max(5, Math.round(minutesRaw / 5) * 5) : 45
+        setImpactSummary({ minutes: roundedMinutes })
+      }
       markChecklist('export')
     } catch (exportError) {
       showToast({
@@ -317,15 +342,31 @@ export default function App() {
     }
   }
 
-  const handleSampleLoad = async () => {
+  const handleSampleLoad = useCallback(async () => {
+    if (sampleLoading) {
+      return
+    }
     acknowledgeWelcome()
-    await loadSamples()
-    showToast({
-      message: 'Sample program loaded. Dashboard ready.',
-      tone: 'success',
-    })
-    markChecklist('upload')
-  }
+    setSampleLoading(true)
+    try {
+      await loadSamples()
+      showToast({
+        message: 'Sample program loaded. Dashboard ready.',
+        tone: 'success',
+      })
+      markChecklist('upload')
+      setImpactSummary(null)
+    } catch (sampleError) {
+      showToast({
+        message: 'Unable to load sample data. Check logs for details.',
+        tone: 'error',
+        durationMs: 6000,
+      })
+      console.error('Sample load failed', sampleError)
+    } finally {
+      setSampleLoading(false)
+    }
+  }, [acknowledgeWelcome, loadSamples, markChecklist, sampleLoading, showToast])
 
   const handleGuidedScenarioLaunch = useCallback(
     async (scenario: GuidedScenario) => {
@@ -338,6 +379,7 @@ export default function App() {
           tone: 'success',
         })
         markChecklist('upload')
+        setImpactSummary(null)
       } catch (error) {
         console.error('Guided scenario load failed', error)
         showToast({
@@ -375,6 +417,7 @@ export default function App() {
         tone: 'success',
       })
       markChecklist('upload')
+      setImpactSummary(null)
       form.reset()
     } catch (uploadError) {
       showToast({
@@ -431,6 +474,28 @@ export default function App() {
     },
     [sanityCheck, showToast],
   )
+
+  const handlePurgeLocalData = useCallback(async () => {
+    try {
+      setPurging(true)
+      await purgeLocalData()
+      await refresh()
+      showToast({
+        message: 'Local data purged. Dashboard reset.',
+        tone: 'success',
+      })
+      setImpactSummary(null)
+    } catch (purgeError) {
+      showToast({
+        message: 'Unable to purge local data. Check logs for details.',
+        tone: 'error',
+        durationMs: 6000,
+      })
+      console.error('Purge local data failed', purgeError)
+    } finally {
+      setPurging(false)
+    }
+  }, [refresh, showToast])
 
   const handleDryRun = useCallback(async () => {
     try {
@@ -561,6 +626,16 @@ export default function App() {
             />
           </div>
           <button
+            className="button secondary"
+            onClick={() => {
+              void handleSampleLoad()
+            }}
+            disabled={sampleLoading}
+            title="Reload the bundled sample data and reset the dashboard state."
+          >
+            {sampleLoading ? 'Loading sample…' : 'Reset to sample data'}
+          </button>
+          <button
             className="button link"
             onClick={handleReplayTour}
             title="Restart the five-step onboarding overlays at any time."
@@ -597,12 +672,33 @@ export default function App() {
         </div>
       )}
 
+      {impactSummary && (
+        <div className="impact-ribbon" role="status" aria-live="polite">
+          <div>
+            <p className="impact-title">What problem did we just solve?</p>
+            <p className="impact-body">
+              Saved ~{impactSummary.minutes} minutes by auto-assembling the status pack and surfacing top risks.
+            </p>
+            <p className="impact-body">Tune the ROI panel to match your cadence and rates.</p>
+          </div>
+          <button
+            className="button ghost"
+            type="button"
+            onClick={() => setImpactSummary(null)}
+            aria-label="Dismiss export impact summary"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {showEmptyTiles && (
         <EmptyStateTiles
           onShowGuided={focusGuidedMode}
           onLoadSample={handleSampleLoad}
           onFocusUpload={focusUploadForm}
           safeModeDocUrl={SAFE_MODE_DOC_URL}
+          sampleLoading={sampleLoading}
         />
       )}
 
@@ -610,7 +706,7 @@ export default function App() {
         <div>
           <h2>Automate your status rituals.</h2>
           <p className="hero-lede">
-            <strong>See it in 15 seconds</strong> → Click <span className="hero-highlight">Guided Mode</span> below (no files needed).
+            <strong>See it in 15 seconds</strong> → Click <span className="hero-highlight">Instant Demo</span> below (no files needed).
           </p>
           <p className="hero-copy">
             ASR Copilot turns weekly status drudgery into a 3-minute executive update: <em>health (RAG)</em> → <em>EVM (CPI/SPI)</em> →{' '}
@@ -621,8 +717,12 @@ export default function App() {
           </p>
           <p className="hero-meta">{heroSubtitle}</p>
           <div className="cta-group">
-            <button className="button primary" onClick={handleWelcomeGuided} title="Scroll to Guided Mode and launch a scenario instantly.">
-              Open Guided Mode
+            <button
+              className="button primary"
+              onClick={handleWelcomeGuided}
+              title="Scroll to the Instant Demo tiles and launch a scenario instantly."
+            >
+              Launch Instant Demo
             </button>
             <button className="button secondary" onClick={handleWelcomeUpload} title="Jump to the upload form and process your own artifacts.">
               Process your files
@@ -683,13 +783,16 @@ export default function App() {
       </section>
 
       {!settingsLoading && (
-        <AdaptersPanel
-          adapters={settings.adapters}
-          adapterModes={settings.adapter_modes}
-          safeMode={settings.safe_mode}
-          onModeChange={handleAdapterModeChange}
-          onSanityCheck={handleAdapterCheck}
-        />
+        <>
+          <AdaptersPanel
+            adapters={settings.adapters}
+            adapterModes={settings.adapter_modes}
+            safeMode={settings.safe_mode}
+            onModeChange={handleAdapterModeChange}
+            onSanityCheck={handleAdapterCheck}
+          />
+          <PrivacyPanel onPurge={handlePurgeLocalData} purging={purging} />
+        </>
       )}
 
       {error && (

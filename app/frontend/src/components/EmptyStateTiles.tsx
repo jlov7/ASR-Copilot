@@ -3,22 +3,29 @@ interface EmptyStateTilesProps {
   onLoadSample: () => void | Promise<void>
   onFocusUpload: () => void
   safeModeDocUrl: string
+  sampleLoading?: boolean
 }
 
-export function EmptyStateTiles({ onShowGuided, onLoadSample, onFocusUpload, safeModeDocUrl }: EmptyStateTilesProps) {
+export function EmptyStateTiles({
+  onShowGuided,
+  onLoadSample,
+  onFocusUpload,
+  safeModeDocUrl,
+  sampleLoading = false,
+}: EmptyStateTilesProps) {
   return (
     <section className="empty-tiles" aria-label="Getting started options">
-      <article className="empty-tile" aria-label="Try Guided Mode tile">
-        <h3>Guided Mode (no files)</h3>
+      <article className="empty-tile" aria-label="Try Instant Demo tile">
+        <h3>Instant Demo (no files)</h3>
         <p>Pick from curated telecom, cloud, or device scenarios. Safe Mode stays on—perfect for executive click-throughs.</p>
         <div className="tile-actions">
           <button
             className="button primary"
             type="button"
             onClick={onShowGuided}
-            title="Scroll to the Guided Mode cards and launch a scenario with one click."
+            title="Scroll to the Instant Demo cards and launch a scenario with one click."
           >
-            Explore Guided Mode
+            Launch Instant Demo
           </button>
         </div>
       </article>
@@ -30,9 +37,11 @@ export function EmptyStateTiles({ onShowGuided, onLoadSample, onFocusUpload, saf
             className="button primary"
             type="button"
             onClick={onLoadSample}
+            disabled={sampleLoading}
             title="One click loads the bundled telecom program so you can narrate the story without prep."
+            aria-busy={sampleLoading}
           >
-            Load sample data
+            {sampleLoading ? 'Loading sample…' : 'Load sample data'}
           </button>
         </div>
       </article>

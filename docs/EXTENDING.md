@@ -2,6 +2,16 @@
 
 This guide shows where to plug in new adapters, metrics, and UI cards so your team can tailor ASR Copilot to additional workflows.
 
+## Live adapters: what's required
+
+Before toggling any adapter to **Live** mode:
+
+- [ ] Set the necessary environment variables in `.env` (`JIRA_*`, `SLACK_*`, `SERVICENOW_*`) with **read-only** credentials or bot tokens.
+- [ ] Disable Safe Mode in the top navigation (`ASR_SAFE_MODE=false` or toggle in-app) so outbound requests are permitted.
+- [ ] Confirm scopes are limited to the data you need (e.g., Jira project browse, read-only ServiceNow tables, Slack channel post target).
+- [ ] Restart the backend after changing environment variables so adapters pick up fresh config.
+- [ ] Use **Settings → Adapters → Sanity check** to verify credentials before demoing to stakeholders.
+
 ## Add a new adapter
 
 1. **Create the adapter module**  
@@ -43,7 +53,18 @@ This guide shows where to plug in new adapters, metrics, and UI cards so your te
    - Update golden datasets (`data/samples/`) so demos stay deterministic.
 
 5. **Docs & demo**  
-   - Refresh screenshots under `docs/SCREENSHOTS/`.  
-   - Mention the new card in `docs/DEMO-SCRIPT.md` and the README “Demo shows” section.
+- Refresh screenshots under `docs/SCREENSHOTS/`.  
+  - Mention the new card in `docs/DEMO-SCRIPT.md` and the README “Demo shows” section.
+
+## From Demo → Enterprise
+
+When you graduate the demo into an enterprise deployment, plan for:
+
+- **SSO & RBAC** – front the FastAPI app with SSO and map roles (viewer, editor, admin) to adapter privileges.
+- **Centralized secrets** – move credentials to Vault/Secrets Manager and rotate regularly.
+- **Audit logging** – capture adapter access, exports, and purges in a tamper-evident log.
+- **Rate-limit & failure tests** – run adapter dry-runs against staging tenants to exercise throttling and retries.
+- **Multi-tenant configuration** – parameterize dataset/cache directories and export paths per customer or program.
+- **Privacy review** – document retention, purge controls, and redaction in line with your security/compliance checklist.
 
 With these steps you can introduce new telemetry while keeping the agentic guardrails and Safe Mode posture intact.

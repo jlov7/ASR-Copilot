@@ -100,4 +100,8 @@ export async function runAutomationDryRun(): Promise<AutomationStatus> {
   return data
 }
 
+export async function purgeLocalData(): Promise<void> {
+  await client.post('/ingest/purge')
+}
+
 export default client

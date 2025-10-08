@@ -33,8 +33,8 @@ export function WelcomeModal({ open, onClose, onGuided, onUpload, onLearnMore }:
         </header>
         <ul className="welcome-promises">
           <li>
-            <strong>No integrations needed.</strong> Guided Mode preloads curated datasets so anyone can explore outcomes in
-            seconds.
+            <strong>No integrations needed.</strong> Instant Demo preloads curated datasets so anyone can explore outcomes
+            in seconds.
           </li>
           <li>
             <strong>Safe Mode stays on.</strong> Demo runs offline-only with mock adapters; nothing leaves your machine.
@@ -45,7 +45,7 @@ export function WelcomeModal({ open, onClose, onGuided, onUpload, onLearnMore }:
         </ul>
         <div className="welcome-actions">
           <button className="button primary" type="button" onClick={onGuided}>
-            Try Guided Mode
+            Launch Instant Demo
           </button>
           <button className="button secondary" type="button" onClick={onUpload}>
             Upload files

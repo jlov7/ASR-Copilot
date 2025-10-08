@@ -3,7 +3,7 @@
 This playbook makes it clear how ASR Copilot graduates from a deterministic proof-of-concept to an enterprise-capable copilot. Each rung adds scope, telemetry, and guardrails while keeping program managers accountable for outcomes.
 
 ## Phase 1 – Assist (Weeks 0–4)
-- **Scope:** Guided Mode only, bundled sample datasets, Safe Mode locked on.
+- **Scope:** Instant Demo only, bundled sample datasets, Safe Mode locked on.
 - **Objectives:** Confirm narrative resonance, validate RAG/EVM explanations with PMO and finance leads.
 - **Guardrails:** No API credentials, exports reviewed manually, golden snapshot test (`pytest -k golden`) runs before every demo.
 - **Exit criteria:** 3+ executive demos delivered, qualitative feedback captured in `docs/CHANGELOG.md`, ROI presets tuned for the target portfolio.
@@ -26,4 +26,3 @@ This playbook makes it clear how ASR Copilot graduates from a deterministic proo
 - [ ] CI pipeline green (backend pytest, frontend build) before enabling live adapters.
 - [ ] Security review logged in `docs/SECURITY.md` with data handling notes.
 - [ ] Deployment runbook appended to `docs/PLAN.md` with owner, RACI, and cutover timeline.
-

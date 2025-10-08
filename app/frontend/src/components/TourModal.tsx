@@ -12,7 +12,7 @@ interface TourModalProps {
 const steps = [
   {
     title: 'Upload once, align instantly.',
-    body: 'Drop in your backlog, risk register, and status notes. Safe Mode keeps everything local.',
+    body: 'Drop in backlog, risk register, and status notes—or click Instant Demo. Safe Mode keeps everything local.',
   },
   {
     title: 'Know your CPI/SPI pulse.',

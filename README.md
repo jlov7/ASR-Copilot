@@ -4,7 +4,7 @@
 
 ASR Copilot (Autonomy–Status–Risk Copilot) is a production-quality proof-of-concept that automates the most time-consuming, rationalizable PM workflows for enterprise TMT/Telco programs. It ingests CSV/Markdown status artifacts (no credentials required), computes earned value metrics, surfaces a live risk watchlist, narrates what changed since yesterday, and assembles a shareable executive status pack with a single click.
 
-> **See it in 15 seconds** → Click **Guided Mode** below (no files needed).  
+> **See it in 15 seconds** → Click **Instant Demo (no files needed)** below.  
 > ASR Copilot turns weekly status drudgery into a 3-minute executive update: *health (RAG)* → *EVM (CPI/SPI)* → *Top risks* → *What changed* → *1-click export*.  
 > **No integrations. Safe Mode by default. Deterministic analytics.**
 
@@ -20,6 +20,8 @@ ASR Copilot (Autonomy–Status–Risk Copilot) is a production-quality proof-of-
 
 ## Why it matters
 Program managers in large enterprises spend 8–12 hours per week aggregating status, chasing risks, and preparing exec-ready updates. ASR Copilot shrinks that cycle to minutes by:
+- PMOs lose **3–4 hrs/week per PM** to duplicative status reporting and swivel-chair data pulls from Jira, spreadsheets, and slides.
+- Weekly status packs score **4.5/5 automation readiness** in enterprise interviews—highly standardized, low-risk to draft automatically.
 - Normalizing backlog, risk, and status-note inputs without integrations.
 - Calculating CPI/SPI deltas and early schedule risk warnings.
 - Auto-drafting executive narratives, mitigations, and ROI evidence to rationalize automation investments.
@@ -31,7 +33,7 @@ Program managers in large enterprises spend 8–12 hours per week aggregating st
 4. **Real productivity gains** – enterprises see the biggest uplift when AI accelerates many workflows, not a single task.
 
 ## Key capabilities
-- **Guided Mode (no files)**: Preload Telco 5G, cloud migration, or CPE swap scenarios with Safe Mode locked on—ideal for skeptical execs.
+- **Instant Demo (no files)**: Preload Telco 5G, cloud migration, or CPE swap scenarios with Safe Mode locked on—ideal for skeptical execs.
 - **No-integration uploads**: Bring your own CSV/Markdown artifacts to refresh analytics in minutes.
 - **Executive cockpit**: RAG banner, EVM gauges, Top 5 risks, ROI estimator with complexity presets, and “what changed” timeline.
 - **Status Pack exports**: Generates Markdown + PNG charts in `/out/` and optionally posts to Slack when credentials exist.
@@ -41,9 +43,10 @@ Program managers in large enterprises spend 8–12 hours per week aggregating st
 - **Automation loop**: Visual runbook tracks Ingestion → Analytics → Narrative → Export, with one-click dry runs for stakeholders.
 - **Adapters control**: Guided panel to switch mock/live modes, run sanity checks, and highlight Safe Mode guardrails.
 - **Presenter shortcuts**: Hit `Shift + ?` during the demo to reveal keyboard shortcuts (tour, sample load, export, dry-run).
+- **Reset & purge controls**: Reset to sample data in one click and purge cached datasets/exports via **Settings → Privacy** before screen shares.
 
 ### Security at a glance
-- **Safe Mode locked on**: The demo, Guided Mode, and hosted templates run without outbound calls.
+- **Safe Mode locked on**: The demo, Instant Demo, and hosted templates run without outbound calls.
 - **Mock adapters only**: Jira/Slack/ServiceNow stay read-only until you intentionally provide credentials.
 - **Local-first exports**: Status packs land in `/out/` on your machine; secrets never persist to disk.
 
@@ -102,7 +105,7 @@ Program managers in large enterprises spend 8–12 hours per week aggregating st
 ### Option D – Hosted Safe Demo (Render)
 1. Fork this repo (or use it as a template) so you can connect Render.
 2. In the Render dashboard choose **New → Blueprint** and point it at `render.yaml`.
-3. Deploy with the default environment variables (`ASR_SAFE_MODE=true`, `ADAPTER_MODE=mock`). Guided Mode stays offline-only.
+3. Deploy with the default environment variables (`ASR_SAFE_MODE=true`, `ADAPTER_MODE=mock`). Instant Demo stays offline-only.
 4. Render serves the FastAPI backend and the pre-built React frontend from the same service at the generated URL.
 
 ## Vite + React rationale
@@ -145,6 +148,10 @@ A detailed tree lives in `docs/ARCHITECTURE.md`.
 - [docs/SECURITY.md](docs/SECURITY.md) – STRIDE-lite control set, Safe Mode posture  
 - [docs/EVALS.md](docs/EVALS.md) – evaluation metrics, ROI scenario table, regression plan  
 - [docs/CHANGELOG.md](docs/CHANGELOG.md) – release history & demo cues
+
+## Repository metadata
+- Suggested GitHub description: `Agentic AI copilot that turns PM status rituals into a 3-minute update (Instant Demo included).`
+- Suggested topics: `project-management`, `agentic-ai`, `evm`, `telco`, `pmo`
 
 ## Environment configuration
 - Copy `.env.example` to `.env` when enabling live adapters.
