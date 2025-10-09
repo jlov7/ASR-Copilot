@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from collections.abc import Iterable
 from pathlib import Path
-from typing import List, Tuple
+from typing import Tuple
 
 from app.backend.models import (
     RoiAssumption,
@@ -18,8 +18,8 @@ DEFAULT_PRESET = "medium"
 DEFAULT_MODIFIERS = RoiModifiers(time_saved_multiplier=1.0, frequency_multiplier=1.0)
 
 
-def _assumptions(*entries: RoiAssumption) -> List[RoiAssumption]:
-    return [entry.copy(deep=True) for entry in entries]
+def _assumptions(*entries: RoiAssumption) -> list[RoiAssumption]:
+    return [entry.model_copy(deep=True) for entry in entries]
 
 
 PRESET_LIBRARY: dict[str, dict] = {
@@ -121,30 +121,30 @@ PRESET_LIBRARY: dict[str, dict] = {
 }
 
 
-def _available_presets() -> List[RoiPreset]:
-    presets: List[RoiPreset] = []
+def _available_presets() -> list[RoiPreset]:
+    presets: list[RoiPreset] = []
     for name, meta in PRESET_LIBRARY.items():
         presets.append(
             RoiPreset(
                 name=name,
                 label=meta["label"],
                 description=meta["description"],
-                assumptions=[assumption.copy(deep=True) for assumption in meta["assumptions"]],
+                assumptions=[assumption.model_copy(deep=True) for assumption in meta["assumptions"]],
             )
         )
     return presets
 
 
-def _preset_assumptions(preset: str) -> List[RoiAssumption]:
+def _preset_assumptions(preset: str) -> list[RoiAssumption]:
     meta = PRESET_LIBRARY.get(preset) or PRESET_LIBRARY[DEFAULT_PRESET]
-    return [assumption.copy(deep=True) for assumption in meta["assumptions"]]
+    return [assumption.model_copy(deep=True) for assumption in meta["assumptions"]]
 
 
-def _default_state() -> Tuple[str, RoiModifiers, List[RoiAssumption]]:
-    return DEFAULT_PRESET, DEFAULT_MODIFIERS.copy(deep=True), _preset_assumptions(DEFAULT_PRESET)
+def _default_state() -> Tuple[str, RoiModifiers, list[RoiAssumption]]:
+    return DEFAULT_PRESET, DEFAULT_MODIFIERS.model_copy(deep=True), _preset_assumptions(DEFAULT_PRESET)
 
 
-def load_state(path: Path) -> Tuple[str, RoiModifiers, List[RoiAssumption]]:
+def load_state(path: Path) -> Tuple[str, RoiModifiers, list[RoiAssumption]]:
     """Load ROI state from disk with backwards-compatible fallback."""
     if not path.exists():
         return _default_state()
@@ -178,8 +178,8 @@ def save_state(
     """Persist ROI state to disk."""
     payload = {
         "preset": preset,
-        "modifiers": modifiers.dict(),
-        "assumptions": [assumption.dict() for assumption in assumptions],
+        "modifiers": modifiers.model_dump(),
+        "assumptions": [assumption.model_dump() for assumption in assumptions],
     }
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as handle:
@@ -192,7 +192,7 @@ def compute_roi(
     assumptions: Iterable[RoiAssumption],
 ) -> RoiSnapshot:
     """Calculate monthly and annual savings for the given ROI state."""
-    assumption_list = [assumption.copy(deep=True) for assumption in assumptions]
+    assumption_list = [assumption.model_copy(deep=True) for assumption in assumptions]
     total_annual = 0.0
     total_hours = 0.0
 

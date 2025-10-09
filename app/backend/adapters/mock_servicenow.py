@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Dict, List
 
 from app.backend.services.ingestion import parse_risks
 
@@ -17,10 +16,10 @@ class MockServiceNowAdapter:
     def __init__(self, data_dir: Path) -> None:
         self.data_dir = data_dir
 
-    def fetch_risks(self, table: str = "pm_risk") -> Dict[str, List[dict]]:
+    def fetch_risks(self, table: str = "pm_risk") -> dict[str, list[dict]]:
         risks_path = self.data_dir / "risks.csv"
         if not risks_path.exists():
             logger.warning("Mock ServiceNow dataset not found at %s", risks_path)
             return {"table": table, "records": []}
         risks = parse_risks(risks_path.read_bytes())
-        return {"table": table, "records": [risk.dict() for risk in risks]}
+        return {"table": table, "records": [risk.model_dump() for risk in risks]}

@@ -207,9 +207,9 @@ def parse_status_notes(content: str) -> List[StatusNote]:
 
 def _compute_dataset_hash(tasks: List[Task], risks: List[Risk], notes: List[StatusNote]) -> str:
     payload = {
-        "tasks": [task.dict() for task in tasks],
-        "risks": [risk.dict() for risk in risks],
-        "notes": [note.dict() for note in notes],
+        "tasks": [task.model_dump() for task in tasks],
+        "risks": [risk.model_dump() for risk in risks],
+        "notes": [note.model_dump() for note in notes],
     }
     serialized = json.dumps(payload, sort_keys=True, default=str)
     return hashlib.sha256(serialized.encode("utf-8")).hexdigest()

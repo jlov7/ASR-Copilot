@@ -7,14 +7,15 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import BaseSettings, Field, PrivateAttr
+from pydantic import AliasChoices, Field, PrivateAttr
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     """Runtime configuration loaded from environment variables."""
 
-    safe_mode: bool = Field(default=True, env="ASR_SAFE_MODE")
-    adapter_mode: Literal["mock", "live"] = Field(default="mock", env="ADAPTER_MODE")
+    safe_mode: bool = Field(default=True, validation_alias=AliasChoices("ASR_SAFE_MODE"))
+    adapter_mode: Literal["mock", "live"] = Field(default="mock", validation_alias=AliasChoices("ADAPTER_MODE"))
     dataset_name: str = Field(default="autonomy_program")
     data_dir: Path = Field(default=Path("data/samples"))
     cache_dir: Path = Field(default=Path(".cache"))
@@ -22,9 +23,11 @@ class Settings(BaseSettings):
     log_dir: Path = Field(default=Path("logs"))
     _adapter_modes: dict[str, Literal["mock", "live"]] = PrivateAttr(default_factory=dict)
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        populate_by_name=True,
+    )
 
     def ensure_directories(self) -> None:
         """Create directories required for runtime artifacts."""

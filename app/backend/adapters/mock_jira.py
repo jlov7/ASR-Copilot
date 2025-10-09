@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Dict, List
 
 from app.backend.services.ingestion import parse_tasks
 
@@ -17,7 +16,7 @@ class MockJiraAdapter:
     def __init__(self, data_dir: Path) -> None:
         self.data_dir = data_dir
 
-    def fetch_backlog(self, project_key: str | None = None) -> Dict[str, List[dict]]:
+    def fetch_backlog(self, project_key: str | None = None) -> dict[str, list[dict]]:
         tasks_path = self.data_dir / "tasks.csv"
         if not tasks_path.exists():
             logger.warning("Mock Jira dataset not found at %s", tasks_path)
@@ -25,5 +24,5 @@ class MockJiraAdapter:
         tasks = parse_tasks(tasks_path.read_bytes())
         return {
             "project": project_key or "SAMPLE",
-            "tasks": [task.dict() for task in tasks],
+            "tasks": [task.model_dump() for task in tasks],
         }

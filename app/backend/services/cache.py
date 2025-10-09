@@ -15,7 +15,7 @@ def _load(path: Path) -> Optional[DatasetSnapshot]:
         return None
     with path.open("r", encoding="utf-8") as handle:
         payload = json.load(handle)
-    return DatasetSnapshot.parse_obj(payload)
+    return DatasetSnapshot.model_validate(payload)
 
 
 def load_current(settings: Settings) -> Optional[DatasetSnapshot]:
@@ -35,7 +35,7 @@ def save_snapshot(settings: Settings, snapshot: DatasetSnapshot) -> None:
     if current_path.exists():
         current_payload = json.loads(current_path.read_text(encoding="utf-8"))
         previous_path.write_text(json.dumps(current_payload, indent=2), encoding="utf-8")
-    current_path.write_text(snapshot.json(indent=2), encoding="utf-8")
+    current_path.write_text(snapshot.model_dump_json(indent=2), encoding="utf-8")
 
 
 def purge(settings: Settings) -> None:
