@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from datetime import date
-from typing import Iterable, Optional, Tuple
+from typing import Optional, Tuple
 
 from app.backend.models import EvmBaselinePoint, Task
-
 
 STATUS_WEIGHTS = {
     "Not Started": 0.0,

@@ -21,9 +21,19 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install "ruff==0.0.287"
 
-      - name: Backend tests
-        run: pytest
+      - name: Ruff lint
+        run: ruff check .
+
+      - name: Backend tests with coverage
+        run: pytest -q --cov=app --cov-report=term --cov-report=xml
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-coverage
+          path: coverage.xml
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -36,11 +46,19 @@ jobs:
         working-directory: app/frontend
         run: npm ci
 
+      - name: Frontend lint
+        working-directory: app/frontend
+        run: npm run lint
+
       - name: Frontend tests
         working-directory: app/frontend
         run: npm test -- --run
         env:
           CI: true
+
+      - name: Frontend build
+        working-directory: app/frontend
+        run: npm run build
 
       - name: Frontend build
         working-directory: app/frontend

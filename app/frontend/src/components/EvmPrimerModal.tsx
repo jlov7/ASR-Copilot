@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react'
-import type { MouseEvent as ReactMouseEvent } from 'react'
 
 export type PrimerMetric = 'rag' | 'cpi' | 'spi' | 'eac'
 
@@ -95,12 +94,6 @@ export function EvmPrimerModal({ metric, onClose }: EvmPrimerModalProps) {
     dialogRef.current?.focus()
   }, [metric])
 
-  const handleBackdropClick = (event: ReactMouseEvent<HTMLDivElement>) => {
-    if (event.target === event.currentTarget) {
-      onClose()
-    }
-  }
-
   return (
     <div
       className="modal-backdrop primer-backdrop"
@@ -108,14 +101,12 @@ export function EvmPrimerModal({ metric, onClose }: EvmPrimerModalProps) {
       aria-modal="true"
       aria-labelledby={labelId}
       aria-describedby={descriptionId}
-      onClick={handleBackdropClick}
     >
       <article
         className="primer-modal"
         role="document"
         tabIndex={-1}
         ref={dialogRef}
-        onClick={(event) => event.stopPropagation()}
       >
         <header className="primer-header">
           <h3 id={labelId}>{content.title}</h3>

@@ -7,9 +7,9 @@ import hashlib
 import io
 import json
 import re
+from collections.abc import Iterable
 from datetime import date, datetime
-from pathlib import Path
-from typing import Iterable, List, Optional, Tuple
+from typing import List, Optional
 
 from fastapi import HTTPException, UploadFile
 

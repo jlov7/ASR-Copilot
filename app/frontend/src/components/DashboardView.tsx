@@ -16,6 +16,8 @@ interface DashboardViewProps {
   isLoading: boolean
   exporting: boolean
   onExport: () => Promise<void>
+  onPreview: () => Promise<void>
+  previewing: boolean
   onSaveRoi: (payload: RoiUpdateRequest) => Promise<void>
   roiSaving: boolean
   onNotify?: (message: string) => void
@@ -101,6 +103,8 @@ export function DashboardView({
   isLoading,
   exporting,
   onExport,
+  onPreview,
+  previewing,
   onSaveRoi,
   roiSaving,
   onNotify,
@@ -226,7 +230,7 @@ export function DashboardView({
     [localAssumptions, localModifiers],
   )
 
-  const metrics: Array<{ label: string; value: number; tooltip: string; primerKey?: PrimerMetric }> = data
+  const metrics: Array<{ label: string; value: number; tooltip: string; primerKey?: PrimerMetric; docsHref?: string }> = data
     ? [
         { label: 'Planned Value (PV)', value: data.evm.pv, tooltip: 'PV (planned value) tracks scheduled work in hours.' },
         { label: 'Earned Value (EV)', value: data.evm.ev, tooltip: 'EV (earned value) reflects completed work weightings.' },
@@ -238,12 +242,14 @@ export function DashboardView({
           value: data.evm.cpi ?? 0,
           tooltip: 'CPI = EV ÷ AC; < 1.0 indicates cost pressure.',
           primerKey: 'cpi',
+          docsHref: `${DOCS_BASE_URL}/docs/EVM-PRIMER.md#core-concepts`,
         },
         {
           label: 'Schedule Performance Index (SPI)',
           value: data.evm.spi ?? 0,
           tooltip: 'SPI = EV ÷ PV; < 1.0 indicates schedule pressure.',
           primerKey: 'spi',
+          docsHref: `${DOCS_BASE_URL}/docs/EVM-PRIMER.md#core-concepts`,
         },
         {
           label: 'Estimate at Completion (EAC)',
@@ -408,6 +414,14 @@ export function DashboardView({
               >
                 <span aria-hidden="true">ℹ️</span>
               </button>
+              <a
+                className="glossary-link"
+                href={`${DOCS_BASE_URL}/docs/EVM-PRIMER.md#core-concepts`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Glossary
+              </a>
             </div>
             <div className="card-heading">
               <h3 id="status-heading">Program health</h3>
@@ -425,7 +439,17 @@ export function DashboardView({
             </div>
             <p>{data.narrative}</p>
           </div>
-          <div>
+          <div className="card-actions">
+            <button
+              className="button secondary"
+              onClick={() => {
+                void onPreview()
+              }}
+              disabled={previewing}
+              title="Preview Markdown and charts before saving the export."
+            >
+              {previewing ? 'Previewing…' : 'Preview export'}
+            </button>
             <button
               className="button primary"
               onClick={onExport}
@@ -439,7 +463,7 @@ export function DashboardView({
         {renderExplain('evm', 'evm-explain')}
         <div className="metric-grid" role="list">
           {metrics.map((metric) => (
-            <article key={metric.label} className="metric-card" role="listitem" title={metric.tooltip}>
+            <article key={metric.label} className="metric-card" role="listitem">
               <div className="metric-card-header">
                 <span className="metric-label">{metric.label}</span>
                 {metric.primerKey && (
@@ -463,6 +487,14 @@ export function DashboardView({
                   style={{ width: `${Math.min(Math.abs(Number(metric.value)) * 10, 100)}%` }}
                 />
               </div>
+              <p className="metric-helper">
+                {metric.tooltip}{' '}
+                {metric.docsHref && (
+                  <a href={metric.docsHref} target="_blank" rel="noreferrer">
+                    Glossary
+                  </a>
+                )}
+              </p>
             </article>
           ))}
         </div>

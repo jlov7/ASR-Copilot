@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import date, datetime
 from typing import List, Literal, Optional
 
-from pydantic import BaseModel, Field, conint, confloat
+from pydantic import BaseModel, Field, confloat, conint
 
 
 class Task(BaseModel):
@@ -215,4 +215,16 @@ class StatusPackResult(BaseModel):
     markdown_path: Optional[str]
     chart_paths: List[str]
     posted_to_slack: bool
+    dataset_hash: str
+
+
+class StatusPackChartPreview(BaseModel):
+    name: str
+    description: Optional[str] = None
+    data_uri: str
+
+
+class StatusPackPreview(BaseModel):
+    markdown: str
+    charts: List[StatusPackChartPreview]
     dataset_hash: str

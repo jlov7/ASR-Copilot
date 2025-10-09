@@ -6,6 +6,7 @@ import type {
   RoiSnapshot,
   RoiUpdateRequest,
   SettingsState,
+  StatusPackPreview,
   StatusPackRequest,
   StatusPackResult,
   UploadResponse,
@@ -38,6 +39,11 @@ export async function exportStatusPack(
   payload: StatusPackRequest,
 ): Promise<StatusPackResult> {
   const { data } = await client.post<StatusPackResult>('/export/status-pack', payload)
+  return data
+}
+
+export async function fetchExportPreview(): Promise<StatusPackPreview> {
+  const { data } = await client.get<StatusPackPreview>('/export/status-pack/preview')
   return data
 }
 

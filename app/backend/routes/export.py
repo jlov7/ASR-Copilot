@@ -12,10 +12,11 @@ from pydantic import BaseModel
 
 from app.backend import adapters
 from app.backend.config import Settings, get_settings
-from app.backend.models import StatusPackRequest, StatusPackResult
+from app.backend.models import StatusPackPreview, StatusPackRequest, StatusPackResult
 from app.backend.services import cache
 from app.backend.services.exporter import export_status_pack
 from app.backend.services.status import build_dashboard_payload
+from app.core.status_pack import generate_status_pack_preview
 
 router = APIRouter(prefix="/api", tags=["export"])
 
@@ -57,6 +58,17 @@ async def create_status_pack(
     slack_adapter = adapters.get_slack_adapter(settings)
     result = export_status_pack(settings, payload, request, slack_adapter=slack_adapter)
     return result
+
+
+@router.get("/export/status-pack/preview", response_model=StatusPackPreview)
+async def preview_status_pack(
+    settings: Settings = Depends(get_settings),
+) -> StatusPackPreview:
+    snapshot = cache.load_current(settings)
+    if snapshot is None:
+        raise HTTPException(status_code=404, detail="No dataset available to preview.")
+    payload = build_dashboard_payload(settings, snapshot)
+    return generate_status_pack_preview(payload)
 
 
 @router.post("/export/markdown")

@@ -144,6 +144,18 @@ export interface StatusPackResult {
   dataset_hash: string
 }
 
+export interface StatusPackChartPreview {
+  name: string
+  description?: string | null
+  data_uri: string
+}
+
+export interface StatusPackPreview {
+  markdown: string
+  charts: StatusPackChartPreview[]
+  dataset_hash: string
+}
+
 export interface AdapterStatus {
   key: 'jira' | 'slack' | 'servicenow'
   name: string

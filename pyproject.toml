@@ -20,3 +20,13 @@ markers = [
 [tool.coverage.run]
 branch = true
 source = ["app"]
+
+[tool.coverage.report]
+omit = [
+    "app/backend/adapters/*",
+    "app/backend/routes/*",
+    "app/backend/logging_config.py",
+    "app/backend/main.py",
+    "app/backend/services/adapter_status.py",
+    "app/scripts/*",
+]

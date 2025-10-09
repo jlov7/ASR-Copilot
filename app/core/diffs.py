@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from difflib import unified_diff
-from typing import Dict, Iterable, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from app.backend.models import (
     ChangeItem,

@@ -10,6 +10,9 @@ const compat = new FlatCompat({
 })
 
 export default [
+  {
+    ignores: ['dist/**', 'node_modules/**'],
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   ...compat.config({
@@ -40,6 +43,5 @@ export default [
         version: 'detect',
       },
     },
-    ignores: ['node_modules', 'dist'],
   },
 ]

@@ -35,6 +35,79 @@
   gap: 12px;
 }
 
+.safe-mode-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.safe-mode-chip .chip-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #f0f4ff;
+  color: #1245a6;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid #c7d3f7;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.safe-mode-chip.on .chip-button {
+  background: #e2f7ee;
+  border-color: #9ed7bb;
+  color: #137d47;
+}
+
+.safe-mode-chip.off .chip-button {
+  background: #fff3cd;
+  border-color: #ffe58f;
+  color: #9c6d08;
+}
+
+.chip-button:focus-visible {
+  outline: 2px solid #1245a6;
+  outline-offset: 3px;
+}
+
+.chip-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.chip-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.6);
+}
+
+.safe-mode-tooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 260px;
+  padding: 12px 14px;
+  background: #0b1f4b;
+  color: #ffffff;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  box-shadow: 0 18px 30px rgba(11, 31, 75, 0.2);
+  z-index: 10;
+  display: none;
+}
+
+.safe-mode-tooltip[data-visible='true'] {
+  display: block;
+}
+
+.safe-mode-tooltip a {
+  color: #9db3e8;
+  text-decoration: underline;
+}
+
 .button {
   border: none;
   border-radius: 8px;
@@ -175,6 +248,87 @@
 .checklist h3 {
   margin: 0 0 8px;
   font-size: 1rem;
+}
+
+.progress-rail {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.progress-step {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid #d5def7;
+  box-shadow: 0 10px 20px rgba(11, 31, 75, 0.05);
+  display: grid;
+  gap: 6px;
+}
+
+.progress-step.complete {
+  border-color: #9ed7bb;
+  background: #effbf3;
+}
+
+.progress-step.current {
+  border-color: #c7d3f7;
+  background: #f0f4ff;
+}
+
+.progress-step.error {
+  border-color: #f3b4b4;
+  background: #fdecec;
+}
+
+.progress-step.mock {
+  border-style: dashed;
+  border-color: #a7b7e8;
+  background: #f6f8ff;
+}
+
+.progress-step header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #0b1f4b;
+}
+
+.progress-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 2px rgba(11, 31, 75, 0.1);
+}
+
+.progress-step.complete .progress-dot {
+  color: #137d47;
+}
+
+.progress-step.current .progress-dot {
+  color: #1245a6;
+}
+
+.progress-step.error .progress-dot {
+  color: #c73535;
+}
+
+.progress-step.mock .progress-dot {
+  color: #4a5b82;
+}
+
+.progress-description,
+.progress-note {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #4a5b82;
+}
+
+.progress-note {
+  font-style: italic;
 }
 
 .checklist-item {
@@ -802,6 +956,13 @@
   margin-top: 16px;
 }
 
+.card-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
 .metric-card {
   background: #f7f9ff;
   border-radius: 14px;
@@ -839,6 +1000,24 @@
   height: 100%;
   background: linear-gradient(90deg, #1245a6 0%, #2e8b57 100%);
   transition: width 0.3s ease;
+}
+
+.metric-helper {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #4a5b82;
+}
+
+.metric-helper a {
+  color: #1245a6;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.glossary-link {
+  font-size: 0.8rem;
+  color: #1245a6;
+  text-decoration: underline;
 }
 
 .risk-list {
@@ -1246,6 +1425,24 @@
   line-height: 1.4;
 }
 
+.schema-details {
+  margin: 4px 0 0;
+  font-size: 0.82rem;
+  color: #4a5b82;
+}
+
+.schema-details ul {
+  margin: 8px 0;
+  padding-left: 18px;
+}
+
+.schema-details code {
+  background: #f0f4ff;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+}
+
 .tile-actions {
   margin-top: auto;
   display: flex;
@@ -1408,6 +1605,36 @@
   font-size: 0.9rem;
 }
 
+.first-run-banner {
+  margin: 12px 0 24px;
+  padding: 16px 20px;
+  border-radius: 14px;
+  background: #f0f4ff;
+  border: 1px solid #c7d3f7;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.first-run-title {
+  margin: 0 0 6px;
+  font-weight: 700;
+  color: #0b1f4b;
+}
+
+.first-run-body {
+  margin: 0;
+  color: #324d7c;
+  font-size: 0.9rem;
+}
+
+.first-run-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .impact-ribbon .button.ghost {
   color: #ffffff;
   align-self: flex-start;
@@ -1415,4 +1642,113 @@
 
 .impact-ribbon .button.ghost:hover {
   opacity: 0.85;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(11, 31, 75, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 40;
+}
+
+.modal {
+  background: #ffffff;
+  border-radius: 16px;
+  width: min(720px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 24px;
+  box-shadow: 0 22px 40px rgba(11, 31, 75, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.modal-status {
+  margin: 0;
+  color: #4a5b82;
+}
+
+.modal-error {
+  margin: 0;
+  color: #c73535;
+  font-weight: 600;
+}
+
+.modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.modal-hash {
+  font-size: 0.8rem;
+  color: #4a5b82;
+}
+
+.markdown-preview {
+  background: #f7f9ff;
+  border: 1px solid #d5def7;
+  border-radius: 12px;
+  padding: 12px 16px;
+}
+
+.markdown-preview summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #1245a6;
+}
+
+.markdown-preview pre {
+  max-height: 220px;
+  overflow: auto;
+  background: #0b1f4b;
+  color: #f7f9ff;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+}
+
+.chart-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.chart-preview {
+  background: #f8fafc;
+  border: 1px solid #d5def7;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.chart-preview img {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.chart-preview figcaption {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: #4a5b82;
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }

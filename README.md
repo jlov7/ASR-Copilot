@@ -1,6 +1,42 @@
 # ASR Copilot
 
-[![Run the Demo](https://img.shields.io/badge/Run%20the%20Demo-bash-blue?logo=gnubash)](#quickstart) [![Open in GitHub Codespaces](https://img.shields.io/badge/Open%20in-Codespaces-24292e?logo=github)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=jlov7%2FASR-Copilot) [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-green.svg)](LICENSE) [![CI](https://github.com/jlov7/ASR-Copilot/actions/workflows/ci.yml/badge.svg)](https://github.com/jlov7/ASR-Copilot/actions/workflows/ci.yml)
+*Agentic AI copilot that turns PM status rituals into a 3-minute update (Instant Demo included).*
+
+[![Run the Instant Demo](https://img.shields.io/badge/Run%20the%20Instant%20Demo-local-blue?logo=gnubash)](QUICKSTART.md#1-instant-demo-no-files-runs-locally) [![Open in GitHub Codespaces](https://img.shields.io/badge/Open%20in-Codespaces-24292e?logo=github)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=jlov7%2FASR-Copilot) [![Deploy to Render](https://img.shields.io/badge/Deploy%20to-Render-3e5)](https://render.com/deploy?repo=https://github.com/jlov7/ASR-Copilot) [![CI](https://github.com/jlov7/ASR-Copilot/actions/workflows/ci.yml/badge.svg)](https://github.com/jlov7/ASR-Copilot/actions/workflows/ci.yml) [![Coverage](docs/badges/backend-coverage.svg)](docs/badges/backend-coverage.svg) [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-3DDC84?logo=pre-commit&logoColor=white)](.tooling/pre-commit-config.yaml) [![CodeQL](https://github.com/jlov7/ASR-Copilot/actions/workflows/codeql.yml/badge.svg)](https://github.com/jlov7/ASR-Copilot/actions/workflows/codeql.yml) [![OpenSSF Scorecard](https://img.shields.io/ossf-scorecard/github.com/jlov7/ASR-Copilot?label=OpenSSF%20Scorecard)](https://github.com/jlov7/ASR-Copilot/actions/workflows/scorecard.yml) [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-green.svg)](LICENSE)
+
+> **Security posture: Safe Mode ON.** No outbound calls, adapters stay in mock mode, exports stay local. [Read SECURITY.md](docs/SECURITY.md)
+
+<figure>
+  <video controls width="100%" poster="docs/media/instant-demo.gif">
+    <source src="docs/media/instant-demo.mp4" type="video/mp4">
+    Your browser does not support embedded video. Watch the Instant Demo walkthrough in `docs/media/instant-demo.mp4`.
+  </video>
+  <figcaption>Instant Demo walkthrough: tour → health/EVM → risks → timeline → ROI → export.</figcaption>
+</figure>
+
+> Quick path? Jump to **[Quickstart for non-devs](QUICKSTART.md)** for three 60-second launch options (Local, Codespaces, Render).
+
+## What this POC is / isn’t
+- Deterministic analytics and explainable agents that automate the PM ritual, not the decisions.
+- No credentials required out of the box—Safe Mode locks off outbound calls and ships with mock adapters.
+- A polished Instant Demo plus rich docs so execs, PMs, and engineers can evaluate enterprise readiness in minutes.
+
+## Table of contents
+- [Why it matters](#why-it-matters)
+- [Key capabilities](#key-capabilities)
+- [Security at a glance](#security-at-a-glance)
+- [Screenshot gallery](#screenshot-gallery)
+- [Architecture snapshot](#architecture-snapshot)
+- [Quickstart](#quickstart)
+- [Vite + React rationale](#vite--react-rationale)
+- [Demo script (≈3 minutes)](#demo-script-3-minutes)
+- [Project layout (high level)](#project-layout-high-level)
+- [Repository metadata](#repository-metadata)
+- [Environment configuration](#environment-configuration)
+- [Testing](#testing)
+- [API reference](#api-reference)
+- [Accessibility & UX commitments](#accessibility--ux-commitments)
+- [Contributing & next steps](#contributing--next-steps)
 
 ASR Copilot (Autonomy–Status–Risk Copilot) is a production-quality proof-of-concept that automates the most time-consuming, rationalizable PM workflows for enterprise TMT/Telco programs. It ingests CSV/Markdown status artifacts (no credentials required), computes earned value metrics, surfaces a live risk watchlist, narrates what changed since yesterday, and assembles a shareable executive status pack with a single click.
 
@@ -66,47 +102,19 @@ Program managers in large enterprises spend 8–12 hours per week aggregating st
 
 ## Quickstart
 
-### Option A – Local toolchain
-1. **Prerequisites**
-   - Python 3.10+
-   - Node.js 18+
-   - `pip`, `npm`, and `uvicorn`
-2. **Install backend dependencies**
-   ```bash
-   python3 -m venv .venv
-   source .venv/bin/activate
-   pip install -r requirements.txt
-   ```
-3. **Install frontend dependencies**
-   ```bash
-   cd app/frontend
-   npm install
-   ```
-4. **Run the local demo**
-   ```bash
-   cd ..
-   ./scripts/run_demo.sh
-   ```
-   The script boots FastAPI at `http://127.0.0.1:8000` and Vite at `http://127.0.0.1:5173`, preloads sample data, and opens the dashboard.
-    - **Windows PowerShell:** `.\app\scripts\run_demo.ps1`
+> Need screenshots and copyable commands? See [QUICKSTART.md](QUICKSTART.md) for the three 60-second launch paths.
 
-### Option B – Docker Compose (no local installs)
-1. Build and run:
-   ```bash
-   docker compose -f compose.yaml up --build
-   ```
-2. Visit `http://localhost:5173` (frontend) and `http://localhost:8000` (backend). The compose file mounts `data/samples`, `out/`, and `logs/` so exports persist on the host.
+- **Option A – Local Instant Demo (no files)**  
+  Create a `.venv`, `pip install -r requirements.txt`, run `npm install` in `app/frontend`, then `make demo`. The script seeds sample data, launches FastAPI (`8000`) + Vite (`5173`), and opens the dashboard with Safe Mode locked on.
 
-### Option C – GitHub Codespaces / Dev Containers
-- Click the “Open in Codespaces” badge above or run `gh codespace create --repo jlov7/ASR-Copilot`.
-- The devcontainer installs Python + Node dependencies automatically; use `./app/scripts/run_demo.sh` inside the Codespace.
-- To use locally with VS Code Dev Containers or Docker Desktop, open the repo in a devcontainer and run `make demo`.
+- **Option B – Docker Compose (self-contained)**  
+  `docker compose -f compose.yaml up --build` boots both services with sample data mounted from `data/samples/`. Visit `http://localhost:5173`, no local Python/Node needed.
 
-### Option D – Hosted Safe Demo (Render)
-1. Fork this repo (or use it as a template) so you can connect Render.
-2. In the Render dashboard choose **New → Blueprint** and point it at `render.yaml`.
-3. Deploy with the default environment variables (`ASR_SAFE_MODE=true`, `ADAPTER_MODE=mock`). Instant Demo stays offline-only.
-4. Render serves the FastAPI backend and the pre-built React frontend from the same service at the generated URL.
+- **Option C – GitHub Codespaces / Dev Containers**  
+  Click the Codespaces badge or run `gh codespace create --repo jlov7/ASR-Copilot`, wait for the devcontainer to provision, then execute `make dev`. Forward ports 8000/5173 and click Instant Demo.
+
+- **Option D – Hosted Safe Demo (Render Blueprint)**  
+  Use the Deploy to Render badge, accept defaults from `render.yaml`, and open the generated URL. Safe Mode stays enabled; only the curated demo scenarios are exposed.
 
 ## Vite + React rationale
 - Granular control over accessibility and onboarding flows.
@@ -150,8 +158,9 @@ A detailed tree lives in `docs/ARCHITECTURE.md`.
 - [docs/CHANGELOG.md](docs/CHANGELOG.md) – release history & demo cues
 
 ## Repository metadata
-- Suggested GitHub description: `Agentic AI copilot that turns PM status rituals into a 3-minute update (Instant Demo included).`
-- Suggested topics: `project-management`, `agentic-ai`, `evm`, `telco`, `pmo`
+- **Description** (GitHub → About): `Agentic AI copilot that turns PM status rituals into a 3-minute update (Instant Demo included).`
+- **Topics**: `project-management`, `agentic-ai`, `evm`, `telco`, `pmo`
+- Keep these in sync with the README tagline so the repo stays discoverable.
 
 ## Environment configuration
 - Copy `.env.example` to `.env` when enabling live adapters.
@@ -184,6 +193,7 @@ A detailed tree lives in `docs/ARCHITECTURE.md`.
 - File issues for Docker/Codespaces improvements or ecosystem adapters (e.g., ServiceNow change integration).
 - Use the **Refresh Media Assets** workflow (Actions tab) if you tweak the UI and need new screenshots.
 - Issue templates live in `.github/ISSUE_TEMPLATE/`; start with the adapter request template when proposing new integrations.
+- Need a starter task? Copy one of the ready-made prompts in [docs/GOOD-FIRST-ISSUES.md](docs/GOOD-FIRST-ISSUES.md).
 
 ## License
 Distributed under the [Apache 2.0 License](LICENSE). See the license file for details and the NOTICE requirements for derivative work.

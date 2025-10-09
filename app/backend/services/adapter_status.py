@@ -126,7 +126,7 @@ def run_adapter_check(settings: Settings, adapter_key: str) -> AdapterStatus:
             raise HTTPException(status_code=400, detail="Jira adapter could not be initialised.")
         try:
             if hasattr(adapter, "max_results"):
-                adapter.max_results = min(getattr(adapter, "max_results"), 10)  # type: ignore[attr-defined]
+                adapter.max_results = min(adapter.max_results, 10)  # type: ignore[attr-defined]
             payload = adapter.fetch_backlog()
             issues = len(payload.get("tasks", []))
             jql = payload.get("jql")

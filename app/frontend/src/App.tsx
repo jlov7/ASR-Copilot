@@ -12,17 +12,22 @@ import { useSettings } from './hooks/useSettings'
 import {
   exportStatusPack,
   fetchExportMarkdown,
+  fetchExportPreview,
   purgeLocalData,
   revealExportPath,
   runAutomationDryRun,
   updateRoi,
   uploadDataset,
 } from './api/client'
-import type { RoiUpdateRequest } from './types'
+import type { RoiUpdateRequest, StatusPackPreview } from './types'
 import { ToastBar } from './components/ToastBar'
 import { GuidedMode, type GuidedScenario } from './features/landing/GuidedMode'
 import { WelcomeModal } from './components/WelcomeModal'
 import { PrivacyPanel } from './components/PrivacyPanel'
+import { SafeModeChip } from './components/SafeModeChip'
+import { ProgressRail } from './components/ProgressRail'
+import { ExportPreviewModal } from './components/ExportPreviewModal'
+import { FirstRunBanner } from './components/FirstRunBanner'
 
 const ONBOARDING_KEY = 'asr_onboarding_complete'
 const CHECKLIST_KEY = 'asr_onboarding_checklist'
@@ -112,6 +117,10 @@ export default function App() {
   const [sampleLoading, setSampleLoading] = useState(false)
   const [purging, setPurging] = useState(false)
   const [impactSummary, setImpactSummary] = useState<{ minutes: number } | null>(null)
+  const [previewOpen, setPreviewOpen] = useState(false)
+  const [previewLoading, setPreviewLoading] = useState(false)
+  const [previewData, setPreviewData] = useState<StatusPackPreview | null>(null)
+  const [previewError, setPreviewError] = useState<string | null>(null)
   const guidedSectionRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
@@ -140,6 +149,7 @@ export default function App() {
   }, [data, modeLabel])
 
   const showEmptyTiles = !loading && !data
+  const showFirstRunBanner = showEmptyTiles
   const showToast = useCallback((input: ToastInput) => {
     if (toastTimer.current !== null) {
       window.clearTimeout(toastTimer.current)
@@ -269,7 +279,12 @@ export default function App() {
     }
   }, [acknowledgeWelcome])
 
-  const handleExport = async () => {
+  const handleFirstRunLaunch = useCallback(() => {
+    acknowledgeWelcome()
+    focusGuidedMode()
+  }, [acknowledgeWelcome, focusGuidedMode])
+
+  const handleExport = useCallback(async () => {
     if (!data) return
     try {
       setExporting(true)
@@ -318,7 +333,43 @@ export default function App() {
     } finally {
       setExporting(false)
     }
-  }
+  }, [data, handleCopyExportMarkdown, handleRevealExportPath, markChecklist, showToast])
+
+  const handlePreviewExport = useCallback(async () => {
+    if (!data) {
+      showToast({ message: 'Load data before previewing the export.', tone: 'info' })
+      return
+    }
+    setPreviewOpen(true)
+    setPreviewLoading(true)
+    setPreviewError(null)
+    setPreviewData(null)
+    try {
+      const preview = await fetchExportPreview()
+      setPreviewData(preview)
+    } catch (error) {
+      console.error('Preview export failed', error)
+      const status = (error as { response?: { status?: number } | undefined }).response?.status
+      if (status === 404) {
+        setPreviewError('Load sample data or upload your own files to generate a preview.')
+        showToast({ message: 'Load data before previewing the export.', tone: 'info' })
+      } else {
+        setPreviewError('Unable to generate a preview. Try exporting once, then retry.')
+        showToast({
+          message: 'Preview failed – check console logs for details.',
+          tone: 'error',
+          durationMs: 6000,
+        })
+      }
+    } finally {
+      setPreviewLoading(false)
+    }
+  }, [data, showToast])
+
+  const handleClosePreview = useCallback(() => {
+    setPreviewOpen(false)
+    setPreviewError(null)
+  }, [])
 
   const handleSaveRoi = async (payload: RoiUpdateRequest) => {
     try {
@@ -615,16 +666,12 @@ export default function App() {
           <span className="tagline">Autonomy–Status–Risk copiloting for TMT/Telco programs</span>
         </div>
         <div className="nav-actions">
-          <div className="safe-toggle" aria-live="polite">
-            <label htmlFor="safe-mode-toggle">Safe Mode</label>
-            <input
-              id="safe-mode-toggle"
-              type="checkbox"
-              checked={settings.safe_mode}
-              disabled={settingsLoading}
-              onChange={(event) => toggleSafeMode(event.target.checked)}
-            />
-          </div>
+          <SafeModeChip
+            safeMode={settings.safe_mode}
+            disabled={settingsLoading}
+            onToggle={toggleSafeMode}
+            docUrl={SAFE_MODE_DOC_URL}
+          />
           <button
             className="button secondary"
             onClick={() => {
@@ -634,6 +681,16 @@ export default function App() {
             title="Reload the bundled sample data and reset the dashboard state."
           >
             {sampleLoading ? 'Loading sample…' : 'Reset to sample data'}
+          </button>
+          <button
+            className="button tertiary"
+            onClick={() => {
+              void handlePreviewExport()
+            }}
+            disabled={previewLoading || !data}
+            title="Open a modal preview with Markdown and chart thumbnails before exporting."
+          >
+            {previewLoading ? 'Previewing…' : 'Preview export'}
           </button>
           <button
             className="button link"
@@ -652,24 +709,8 @@ export default function App() {
           </button>
         </div>
       </header>
-      {!settingsLoading && (
-        <div className={`safety-banner ${settings.safe_mode ? 'safe' : 'live'}`} role="status" aria-live="polite">
-          {settings.safe_mode ? (
-            <>
-              Safe Mode: <strong>ON</strong> – outbound calls disabled.{' '}
-              <a href={SAFE_MODE_DOC_URL} target="_blank" rel="noreferrer">
-                What's this?
-              </a>
-            </>
-          ) : (
-            <>
-              Safe Mode: <strong>OFF</strong> – read-only adapters may call live APIs.{' '}
-              <a href={SAFE_MODE_DOC_URL} target="_blank" rel="noreferrer">
-                What's this?
-              </a>
-            </>
-          )}
-        </div>
+      {showFirstRunBanner && (
+        <FirstRunBanner onLaunchDemo={handleFirstRunLaunch} onSeeSchema={focusUploadForm} />
       )}
 
       {impactSummary && (
@@ -745,6 +786,8 @@ export default function App() {
         </div>
       </section>
 
+      <ProgressRail steps={data?.automation.steps} />
+
       <div ref={guidedSectionRef} className="guided-anchor" tabIndex={-1}>
         <GuidedMode busy={guidedLoading} onLaunchScenario={handleGuidedScenarioLaunch} />
       </div>
@@ -809,6 +852,8 @@ export default function App() {
         isLoading={loading}
         exporting={exporting}
         onExport={handleExport}
+        onPreview={handlePreviewExport}
+        previewing={previewLoading}
         onSaveRoi={handleSaveRoi}
         roiSaving={roiSaving}
         onNotify={showToast}
@@ -835,6 +880,13 @@ export default function App() {
         }}
       />
       {shortcutsOpen && <ShortcutsModal shortcuts={shortcuts} onClose={() => setShortcutsOpen(false)} />}
+      <ExportPreviewModal
+        open={previewOpen}
+        loading={previewLoading}
+        preview={previewData}
+        error={previewError}
+        onClose={handleClosePreview}
+      />
     </div>
   )
 }

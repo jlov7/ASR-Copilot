@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from datetime import date
-from typing import Iterable, List, Optional
+from typing import List, Optional
 
 from app.backend.models import Risk, RiskListItem, RiskMatrixPoint, RiskSummary
 

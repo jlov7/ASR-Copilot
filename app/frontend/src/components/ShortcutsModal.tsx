@@ -10,14 +10,8 @@ interface ShortcutsModalProps {
 
 export function ShortcutsModal({ shortcuts, onClose }: ShortcutsModalProps) {
   return (
-    <div
-      className="shortcuts-backdrop"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="shortcuts-title"
-      onClick={onClose}
-    >
-      <div className="shortcuts-modal" onClick={(event) => event.stopPropagation()}>
+    <div className="shortcuts-backdrop" role="dialog" aria-modal="true" aria-labelledby="shortcuts-title">
+      <div className="shortcuts-modal">
         <header>
           <h3 id="shortcuts-title">Keyboard shortcuts</h3>
           <button className="button ghost" type="button" onClick={onClose} aria-label="Close shortcuts">

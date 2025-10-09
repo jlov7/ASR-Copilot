@@ -146,6 +146,8 @@ describe('DashboardView', () => {
         isLoading={false}
         exporting={false}
         onExport={vi.fn()}
+        onPreview={vi.fn()}
+        previewing={false}
         onSaveRoi={vi.fn()}
         roiSaving={false}
         onNotify={vi.fn()}
@@ -157,5 +159,6 @@ describe('DashboardView', () => {
     expect(screen.getByText(/Overall RAG/)).toHaveTextContent('Overall RAG: At Risk')
     expect(screen.getByText(/Planned Value/)).toBeInTheDocument()
     expect(screen.getAllByText(/Vendor firmware slip/)[0]).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Preview export/i })).toBeInTheDocument()
   })
 })

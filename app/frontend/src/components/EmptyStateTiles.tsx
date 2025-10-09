@@ -48,6 +48,34 @@ export function EmptyStateTiles({
       <article className="empty-tile" aria-label="Upload your files tile">
         <h3>Upload your CSV/Markdown</h3>
         <p>Use your backlog, risk register, and status notes to generate CPI/SPI, risks, ROI, and exports.</p>
+        <details className="schema-details">
+          <summary>See sample schema</summary>
+          <ul>
+            <li>
+              <strong>tasks.csv</strong> → <code>id,title,owner,status,start_date,finish_date,planned_hours,actual_hours</code>
+            </li>
+            <li>
+              <strong>risks.csv</strong> → <code>id,summary,probability,impact,owner,due_date,mitigation,status</code>
+            </li>
+            <li>
+              <strong>status_notes.md</strong> → dated sections with highlights/blockers.
+            </li>
+            <li>
+              <strong>evm_baseline.csv</strong> → <code>date,pv,ev,ac</code>
+            </li>
+          </ul>
+          <p>
+            Full details live in{' '}
+            <a
+              href="https://github.com/jlov7/ASR-Copilot/blob/main/docs/DATA-SCHEMA.md"
+              target="_blank"
+              rel="noreferrer"
+            >
+              docs/DATA-SCHEMA.md
+            </a>
+            .
+          </p>
+        </details>
         <div className="tile-actions">
           <button
             className="button secondary"
@@ -56,6 +84,15 @@ export function EmptyStateTiles({
             title="Jump to the upload form; we validate CSV/Markdown formats and keep data local."
           >
             Jump to upload form
+          </button>
+          <button
+            className="button ghost"
+            type="button"
+            onClick={onLoadSample}
+            disabled={sampleLoading}
+            title="Need an example? Load the demo dataset and inspect the downloads."
+          >
+            {sampleLoading ? 'Loading…' : 'Load sample instead'}
           </button>
         </div>
       </article>

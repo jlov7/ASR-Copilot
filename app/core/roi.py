@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable, List, Tuple
+from typing import List, Tuple
 
 from app.backend.models import (
     RoiAssumption,

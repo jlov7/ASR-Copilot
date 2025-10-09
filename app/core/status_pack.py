@@ -2,16 +2,23 @@
 
 from __future__ import annotations
 
+import base64
 from datetime import datetime
+from io import BytesIO
 from pathlib import Path
-from typing import List, Optional
+from typing import IO, List, Optional, Union
 
 import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 
-from app.backend.models import DashboardPayload, StatusPackResult
+from app.backend.models import (
+    DashboardPayload,
+    StatusPackChartPreview,
+    StatusPackPreview,
+    StatusPackResult,
+)
 
 
 def _rag_state(spi: float | None, cpi: float | None) -> str:
@@ -91,7 +98,7 @@ def _build_markdown(payload: DashboardPayload) -> str:
     return "\n".join(lines)
 
 
-def _evm_chart(payload: DashboardPayload, output_path: Path) -> None:
+def _create_evm_figure(payload: DashboardPayload):
     evm = payload.evm
     labels = ["PV", "EV", "AC"]
     values = [evm.pv, evm.ev, evm.ac]
@@ -101,11 +108,10 @@ def _evm_chart(payload: DashboardPayload, output_path: Path) -> None:
     ax.set_ylabel("Hours (proxy)")
     ax.bar_label(bars, fmt="%.0f")
     fig.tight_layout()
-    fig.savefig(output_path, dpi=150)
-    plt.close(fig)
+    return fig
 
 
-def _risk_heatmap_chart(payload: DashboardPayload, output_path: Path) -> None:
+def _create_risk_heatmap_figure(payload: DashboardPayload):
     risks = payload.risks.heatmap
     fig, ax = plt.subplots(figsize=(6, 4))
     x = [risk.probability for risk in risks]
@@ -119,8 +125,35 @@ def _risk_heatmap_chart(payload: DashboardPayload, output_path: Path) -> None:
     ax.set_ylim(0, 5.5)
     fig.colorbar(scatter, ax=ax, label="Severity")
     fig.tight_layout()
-    fig.savefig(output_path, dpi=150)
+    return fig
+
+
+def _save_figure(fig, target: Union[Path, IO[bytes]]) -> None:
+    if isinstance(target, Path):
+        fig.savefig(target, dpi=150)
+    else:
+        fig.savefig(target, format="png", dpi=150)
+        target.seek(0)
     plt.close(fig)
+
+
+def _figure_to_data_uri(fig) -> str:
+    buffer = BytesIO()
+    fig.savefig(buffer, format="png", dpi=150)
+    plt.close(fig)
+    buffer.seek(0)
+    encoded = base64.b64encode(buffer.read()).decode("ascii")
+    return f"data:image/png;base64,{encoded}"
+
+
+def _evm_chart(payload: DashboardPayload, output_path: Path) -> None:
+    fig = _create_evm_figure(payload)
+    _save_figure(fig, output_path)
+
+
+def _risk_heatmap_chart(payload: DashboardPayload, output_path: Path) -> None:
+    fig = _create_risk_heatmap_figure(payload)
+    _save_figure(fig, output_path)
 
 
 def generate_status_pack(
@@ -154,3 +187,29 @@ def generate_status_pack(
         posted_to_slack=False,
         dataset_hash=payload.meta.dataset_hash,
     )
+
+
+def generate_status_pack_preview(payload: DashboardPayload) -> StatusPackPreview:
+    """Build an in-memory preview (Markdown + chart thumbnails)."""
+    markdown = _build_markdown(payload)
+    charts: List[StatusPackChartPreview] = []
+
+    evm_fig = _create_evm_figure(payload)
+    charts.append(
+        StatusPackChartPreview(
+            name="earned_value.png",
+            description="PV vs EV vs AC snapshot",
+            data_uri=_figure_to_data_uri(evm_fig),
+        )
+    )
+
+    risk_fig = _create_risk_heatmap_figure(payload)
+    charts.append(
+        StatusPackChartPreview(
+            name="risk_heatmap.png",
+            description="Probability × impact bubble chart",
+            data_uri=_figure_to_data_uri(risk_fig),
+        )
+    )
+
+    return StatusPackPreview(markdown=markdown, charts=charts, dataset_hash=payload.meta.dataset_hash)
