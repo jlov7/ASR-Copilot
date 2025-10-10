@@ -152,12 +152,6 @@ Program managers in large enterprises spend 8–12 hours per week aggregating st
 5. “In telco siting, the **shot-clock panel** tracks deadlines and outstanding artifacts so nothing slips.”
 6. “Enterprise path? Flip adapters from mock→live (read-only), follow the NIST-aligned controls, and scale safely.”
 
-## 10-day enhancement plan
-- **Days 1–2**: Land the six new docs plus README links; add the sample portfolio CTA and Data Health Score badge.
-- **Days 3–5**: Ship the Chase Queue preview UI and the telco compliance panel with timers.
-- **Days 6–8**: Deliver the export bundle (`Status.md`, `RAID.csv`, `Audit.json`) and harden enterprise docs.
-- **Days 9–10**: Optionally enable Jira read-only behind `LIVE_CONNECTORS`, then capture a 5-minute click-through demo.
-
 ## Points on data readiness
 - **“Data will not be clean”** → Data Health Score quantifies gaps, and chase prompts close them.
 - **“Multiple tools; every project configured differently”** → Adapters normalize enums into the canonical contract; outputs stay deterministic.
@@ -165,7 +159,6 @@ Program managers in large enterprises spend 8–12 hours per week aggregating st
 - **“PMs do a lot of manual coordination”** → Standardized status packs, RAID updates, and nudges reclaim planning hours.
 - **“How does this become a product?”** → `docs/PRODUCTIZATION.md` + `docs/EVALUATION_CHECKLIST.md` map the controlled rollout and controls sign-off.
 - **“Telco specifics?”** → Compliance signals track NEPA/Section 106, 6409(a), and FCC shot clocks (see `docs/TELCO_COMPLIANCE.md`).
-- **“Ground-up vs hyperscaler vs Agent OS?”** → Adapter registry + Safe Mode keep options open for swapping runtime hosts without rework.
 
 ## Security at a glance
 - **Safe Mode locked on**: The demo, Instant Demo, and hosted templates run without outbound calls.
