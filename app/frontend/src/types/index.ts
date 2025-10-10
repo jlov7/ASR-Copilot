@@ -113,6 +113,67 @@ export interface DashboardMeta {
   safe_mode: boolean
 }
 
+export type DataHealthKey = 'completeness' | 'freshness' | 'consistency' | 'conformance'
+
+export interface DataHealthDimension {
+  key: DataHealthKey
+  label: string
+  score: number
+  max_score: number
+  description: string
+  issues: string[]
+  actions: string[]
+}
+
+export type DataHealthLabel = 'Excellent' | 'Strong' | 'Fair' | 'Weak'
+
+export interface DataHealthScore {
+  total: number
+  label: DataHealthLabel
+  summary: string
+  dimensions: DataHealthDimension[]
+  last_calculated: string
+}
+
+export type ChaseChannel = 'email' | 'teams'
+export type ChasePriority = 'low' | 'medium' | 'high'
+
+export interface ChaseQueueItem {
+  gap_id: string
+  summary: string
+  owner: string
+  owner_role?: string | null
+  channel: ChaseChannel
+  priority: ChasePriority
+  status: 'draft' | 'ready' | 'sent'
+  message: string
+  related_entities: string[]
+  dimension: DataHealthKey
+}
+
+export interface ComplianceCountdown {
+  key: 'fcc_collocation_90' | 'fcc_new_site_150'
+  label: string
+  deadline: string
+  days_remaining: number
+  status: 'green' | 'amber' | 'red'
+  description: string
+}
+
+export interface ComplianceChecklistItem {
+  key: 'nepa_section_106' | 'eligible_facilities' | 'structural' | 'power_service'
+  label: string
+  status: 'complete' | 'pending' | 'missing'
+  owner?: string | null
+  action?: string | null
+}
+
+export interface CompliancePanel {
+  shot_clocks: ComplianceCountdown[]
+  checklist: ComplianceChecklistItem[]
+  last_reviewed: string
+}
+
 export interface DashboardPayload {
   evm: EvmMetrics
   risks: RiskSummary
@@ -121,6 +182,9 @@ export interface DashboardPayload {
   narrative: string
   meta: DashboardMeta
   automation: AutomationStatus
+  data_health: DataHealthScore
+  chase_queue: ChaseQueueItem[]
+  compliance: CompliancePanel
 }
 
 export interface UploadResponse {

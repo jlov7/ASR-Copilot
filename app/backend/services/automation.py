@@ -25,6 +25,8 @@ from app.core.evm import calculate_metrics
 from app.core.risk_scoring import summarize_risks
 from app.core.status_pack import generate_status_pack
 from app.core.summarizer import build_narrative
+from app.core.data_health import evaluate_data_health
+from app.core.telco_compliance import build_telco_compliance
 
 AUTOMATION_STEPS: List[Tuple[str, str]] = [
     ("ingestion", "Ingestion"),
@@ -78,7 +80,7 @@ def load_status(settings: Settings) -> AutomationStatus:
     except ValueError:
         last_run = None
     trigger = latest.get("trigger", "unknown")
-    if trigger not in {"unknown", "upload", "dry_run", "seed"}:
+    if trigger not in {"unknown", "upload", "dry_run", "seed", "live"}:
         trigger = "unknown"
 
     step_payloads: Dict[str, Dict[str, Any]] = {
@@ -263,6 +265,8 @@ def simulate_dry_run(settings: Settings) -> AutomationStatus:
 
     preset, modifiers, assumptions = roi_core.load_state(settings.roi_settings_path)
     roi_snapshot = roi_core.compute_roi(preset, modifiers, assumptions)
+    data_health, chase_queue = evaluate_data_health(snapshot)
+    compliance = build_telco_compliance(snapshot)
 
     export_start = time.perf_counter()
     payload = DashboardPayload(
@@ -273,10 +277,13 @@ def simulate_dry_run(settings: Settings) -> AutomationStatus:
         narrative=narrative,
         meta=DashboardMeta(
             dataset_hash=snapshot.dataset_hash,
-            last_updated=datetime.utcnow(),
+            last_updated=snapshot.last_updated,
             safe_mode=settings.safe_mode,
         ),
         automation=_default_status(),
+        data_health=data_health,
+        chase_queue=chase_queue,
+        compliance=compliance,
     )
     result = generate_status_pack(payload, settings.out_dir, include_markdown=True, include_png=False)
     export_duration = int((time.perf_counter() - export_start) * 1000)

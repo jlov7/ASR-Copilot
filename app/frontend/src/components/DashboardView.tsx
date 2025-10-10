@@ -260,6 +260,13 @@ export function DashboardView({
       ]
     : []
 
+  const dataHealth = data?.data_health
+  const chaseQueue = data?.chase_queue ?? []
+  const compliance = data?.compliance
+  const dataHealthTimestamp = dataHealth ? new Date(dataHealth.last_calculated).toLocaleString() : ''
+  const complianceReviewedDate = compliance ? new Date(compliance.last_reviewed).toLocaleDateString() : ''
+  const titleCase = (value: string) => value.charAt(0).toUpperCase() + value.slice(1)
+
   const changeGlyph: Record<'added' | 'updated' | 'removed', string> = {
     added: '▲',
     updated: '↻',
@@ -309,6 +316,27 @@ export function DashboardView({
       console.error('Dry-run simulation failed', error)
     }
   }, [onDryRun, onNotify])
+
+  const scrollToDataHealth = useCallback(() => {
+    const target = document.getElementById('data-health-card')
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      target.focus({ preventScroll: true })
+    }
+  }, [])
+
+  const handleCopyChaseMessage = useCallback(
+    async (item: DashboardPayload['chase_queue'][number]) => {
+      try {
+        await navigator.clipboard.writeText(item.message)
+        onNotify?.('Chase draft copied to clipboard.')
+      } catch (error) {
+        console.error('Failed to copy chase draft', error)
+        onNotify?.('Unable to copy chase draft; copy manually if needed.')
+      }
+    },
+    [onNotify],
+  )
 
   const handleDraftMitigation = async (risk: RiskListItem) => {
     const mitigationText = `Risk ${risk.id} (${risk.summary}) — mitigation owner ${risk.owner} to confirm path by ${new Date(
@@ -423,6 +451,16 @@ export function DashboardView({
                 Glossary
               </a>
             </div>
+            {dataHealth && (
+              <button
+                type="button"
+                className={`data-health-pip ${dataHealth.label.toLowerCase()}`}
+                onClick={scrollToDataHealth}
+                title="Jump to the Data Health section for details."
+              >
+                Data Health {dataHealth.total}/100
+              </button>
+            )}
             <div className="card-heading">
               <h3 id="status-heading">Program health</h3>
               <button
@@ -500,6 +538,54 @@ export function DashboardView({
         </div>
       </section>
 
+      {dataHealth && (
+        <section
+          id="data-health-card"
+          className="section-card data-health-card"
+          aria-labelledby="data-health-heading"
+          tabIndex={-1}
+        >
+          <div className="card-heading">
+            <h3 id="data-health-heading">Data Health Score</h3>
+            <span className={`health-chip ${dataHealth.label.toLowerCase()}`}>
+              {dataHealth.total}/100 · {dataHealth.label}
+            </span>
+          </div>
+          <p className="data-health-summary">
+            {dataHealth.summary || 'All dimensions in good standing.'} Reviewed {dataHealthTimestamp}.
+          </p>
+          <div className="dimension-grid">
+            {dataHealth.dimensions.map((dimension) => (
+              <article key={dimension.key} className="dimension-card">
+                <header className="dimension-header">
+                  <span className="dimension-title">{dimension.label}</span>
+                  <span className="dimension-score">
+                    {dimension.score}/{dimension.max_score}
+                  </span>
+                </header>
+                <p className="dimension-description">{dimension.description}</p>
+                {dimension.issues.length > 0 ? (
+                  <ul className="dimension-issues">
+                    {dimension.issues.slice(0, 2).map((issue) => (
+                      <li key={issue}>{issue}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="dimension-all-clear">No gaps detected.</p>
+                )}
+                {dimension.actions.length > 0 && (
+                  <ul className="dimension-actions">
+                    {dimension.actions.slice(0, 2).map((action) => (
+                      <li key={action}>{action}</li>
+                    ))}
+                  </ul>
+                )}
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
       <section className="section-card" aria-labelledby="risk-heading">
         <div className="card-heading">
           <h3 id="risk-heading">Top risks</h3>
@@ -565,6 +651,39 @@ export function DashboardView({
         </div>
       </section>
 
+      {compliance && (
+        <section className="section-card compliance-card" aria-labelledby="compliance-heading">
+          <div className="card-heading">
+            <h3 id="compliance-heading">Telco compliance</h3>
+            <span className="compliance-reviewed">Reviewed {complianceReviewedDate}</span>
+          </div>
+          <div className="shot-clock-grid">
+            {compliance.shot_clocks.map((clock) => (
+              <article key={clock.key} className={`shot-clock-card ${clock.status}`}>
+                <header className="shot-clock-header">
+                  <span className="shot-clock-label">{clock.label}</span>
+                  <span className="shot-clock-count">{clock.days_remaining} days</span>
+                </header>
+                <p className="shot-clock-deadline">Deadline {new Date(clock.deadline).toLocaleDateString()}</p>
+                <p className="shot-clock-description">{clock.description}</p>
+              </article>
+            ))}
+          </div>
+          <div className="compliance-checklist">
+            {compliance.checklist.map((item) => (
+              <article key={item.key} className={`checklist-item status-${item.status}`}>
+                <span className={`status-chip ${item.status}`}>{titleCase(item.status)}</span>
+                <div>
+                  <strong>{item.label}</strong>
+                </div>
+                <p className="checklist-owner">Owner: {item.owner ?? 'TBD'}</p>
+                {item.action && <p className="checklist-action">{item.action}</p>}
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
       <section className="section-card" aria-labelledby="changes-heading">
         <div className="card-heading">
           <h3 id="changes-heading">What changed since last snapshot</h3>
@@ -622,6 +741,38 @@ export function DashboardView({
         <p className="timeline-callout">
           We compare today’s snapshot to yesterday’s to highlight deltas (scope, cost, schedule, risks).
         </p>
+      </section>
+
+      <section className="section-card chase-card" aria-labelledby="chase-heading">
+        <div className="card-heading">
+          <h3 id="chase-heading">Chase queue (preview)</h3>
+          <p className="card-subhead">Draft messages stay local until you approve and send.</p>
+        </div>
+        {chaseQueue.length === 0 ? (
+          <p className="empty-copy">No gaps require follow-up. Data Health Score drives this queue.</p>
+        ) : (
+          <div className="chase-list">
+            {chaseQueue.map((item) => (
+              <article key={item.gap_id} className={`chase-item priority-${item.priority}`}>
+                <header className="chase-header">
+                  <div>
+                    <strong>{item.summary}</strong>
+                    <p className="chase-meta">
+                      Owner: {item.owner} • Channel: {titleCase(item.channel)}
+                    </p>
+                  </div>
+                  <span className={`status-chip ${item.priority}`}>{titleCase(item.priority)}</span>
+                </header>
+                <p className="chase-message">{item.message}</p>
+                <div className="chase-actions">
+                  <button className="button secondary" type="button" onClick={() => handleCopyChaseMessage(item)}>
+                    Copy draft
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
       </section>
 
       <section className="section-card" aria-labelledby="roi-heading">

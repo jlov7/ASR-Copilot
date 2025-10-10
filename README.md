@@ -22,8 +22,15 @@
 - A polished Instant Demo plus rich docs so execs, PMs, and engineers can evaluate enterprise readiness in minutes.
 
 ## Table of contents
+- [Executive summary](#executive-summary)
 - [Why it matters](#why-it-matters)
 - [Key capabilities](#key-capabilities)
+- [Handling messy, incomplete, multi-source data](#how-asr-copilot-handles-messy-incomplete-multi-source-data)
+- [Productization runway](#productization-runway)
+- [UI & demo flow](#ui--demo-flow)
+- [Demo talk track](#demo-talk-track)
+- [10-day enhancement plan](#10-day-enhancement-plan)
+- [Points on data readiness](#points-on-data-readiness)
 - [Security at a glance](#security-at-a-glance)
 - [Screenshot gallery](#screenshot-gallery)
 - [Architecture snapshot](#architecture-snapshot)
@@ -37,6 +44,20 @@
 - [API reference](#api-reference)
 - [Accessibility & UX commitments](#accessibility--ux-commitments)
 - [Contributing & next steps](#contributing--next-steps)
+
+## Executive summary
+
+**What ASR Copilot does and why it matters (plain English):**
+
+- **Problem in PM today:** PMs spend a lot of time **collecting, cleaning, and standardizing** updates scattered across Jira/Planview/ServiceNow/Excel/Teams emails and then chasing people for missing pieces. In telco, this is amplified by **regulatory and permitting workflows** (NEPA, Section 106, FCC shot-clocks) where a single missing document or late reply can blow a deadline.
+- **What ASR Copilot proves:** A **deterministic “status & risk” copilot** that (a) **ingests** messy data, (b) **scores data health** and shows gaps, (c) **drafts standardized outputs** (status, RAID, EVM/EAC signals), and (d) **runs a chase queue** to request missing updates from the right people—using mock adapters for the demo and pluggable live adapters later.
+- **Why it’s credible:** We keep the agentry **inside guardrails** (deterministic templates, HITL approvals), and we show a clear, governed path from prototype → enterprise (data contracts, adapters, audit logs, evaluation checklists mapped to NIST AI RMF).
+
+**Hard benefits:**
+
+- **Time saved:** drafting and compiling cross-platform status packs drops from **3–4 hrs/week to ~15 min** review per project (demo shows this deterministically).
+- **Data quality uplift:** the **Data Health Score** exposes gaps (completeness, freshness, consistency) and drives a **standardized chase** to close them—solving the “input is critical” concern.
+- **Risk control:** early variance flags (budget/schedule) + RAID suggestions from comms (HITL) reduce “unlogged risk” and missed regulatory shot-clocks in telco siting/permits workflows.
 
 ASR Copilot (Autonomy–Status–Risk Copilot) is a production-quality proof-of-concept that automates the most time-consuming, rationalizable PM workflows for enterprise TMT/Telco programs. It ingests CSV/Markdown status artifacts (no credentials required), computes earned value metrics, surfaces a live risk watchlist, narrates what changed since yesterday, and assembles a shareable executive status pack with a single click.
 
@@ -81,7 +102,72 @@ Program managers in large enterprises spend 8–12 hours per week aggregating st
 - **Presenter shortcuts**: Hit `Shift + ?` during the demo to reveal keyboard shortcuts (tour, sample load, export, dry-run).
 - **Reset & purge controls**: Reset to sample data in one click and purge cached datasets/exports via **Settings → Privacy** before screen shares.
 
-### Security at a glance
+## How ASR Copilot handles messy, incomplete, multi-source data
+
+### Canonical Project Data Contract + adapters
+- Opinionated schema spanning Project, Milestone, Task, Risk, Issue, Decision, BudgetSnapshot, and Dependency objects keeps downstream analytics deterministic.
+- Demo mode maps bundled CSV artifacts into that contract; enterprise mode swaps in live Jira/ServiceNow/Planview adapters with Safe Mode still defaulting to read-only mocks. See `docs/DATA_STRATEGY.md` and `docs/CONNECTORS.md`.
+
+### Data Health Score (demo & enterprise)
+- Four weighted dimensions — **Completeness (40)**, **Freshness (25)**, **Consistency (25)**, **Conformance (10)** — render as a single 0–100 score with drill-down metrics.
+- Each metric lists remediation prompts (“Ask owner for missing estimate”) that route into the Chase Queue. Score gates one-click exports in enterprise mode.
+
+### Chase Queue (people-aware reminders)
+- Every data gap generates a polite, context-rich nudge template (email/Teams) targeting likely owners based on RACI metadata and historical edits.
+- Demo shows messages in-line; live mode sends via Teams/Graph/Jira after human approval. Logs ensure every outbound request is attributable.
+
+### Deterministic outputs, HITL guardrails
+- Status summaries, RAID updates, EVM/EAC deltas, and dependency alerts remain template-driven so execs see repeatable phrasing tied to specific fields.
+- Human-in-the-loop approvals stay on for all outbound sends and write-backs, matching the governance controls in `docs/PRODUCTIZATION.md`.
+
+### Telco compliance pane
+- Dedicated compliance signals track NEPA/Section 106 documentation, 6409(a) eligibility, and FCC shot clocks (90/150 day). Countdown timers and artifact checklists stay visible inside the project view.
+- All mappings are documented in `docs/TELCO_COMPLIANCE.md` so permitting teams can validate the source checklist.
+
+### Governance & productization frame
+- Enterprise reviewers get the control story mapped to NIST AI RMF across Govern/Map/Measure/Manage, with evidence checklists in `docs/EVALUATION_CHECKLIST.md`.
+- Adapter registry, audit logging, Safe Mode defaults, and write-back approvals form the paved path from prototype → controlled rollout.
+
+## Productization runway
+- `docs/PRODUCTIZATION.md` distills the enterprise controls story and aligns rollout milestones to NIST AI RMF stages.
+- `docs/DATA_STRATEGY.md` and `docs/CONNECTORS.md` document the canonical contract plus Safe Mode vs live adapter expectations.
+- `docs/EVALUATION_CHECKLIST.md` packages the evidence bundle (tests, audit logs, incident runbooks) for security & risk teams.
+- `docs/TELCO_COMPLIANCE.md` proves we mapped industry-specific permitting checkpoints to in-app signals.
+- `docs/ONBOARDING.md` walks a 10-minute sample-first flow so GTM, PMs, and execs can self-serve the value story.
+- Open `exports/Status.md` and `exports/Audit.json` for copy-ready samples reviewers can inspect without running the app.
+
+## UI & demo flow
+- Home hero features three decision cards: **Load sample portfolio** (primary), **Connect read-only Jira/ServiceNow** (secondary), and **Upload CSV** (advanced).
+- Project list shows a **Data Health Score** badge and a “Needs attention” filter to spotlight remediation targets.
+- Project detail layout flows left→right: RAG health, timeline, RAID, budget/EVM, dependencies, then **Chase Queue**.
+- Compliance panel sits beside timeline with shot-clock countdowns and required artifact checklists for telco permitting.
+- Every metric surfaces an “i” tooltip explaining inputs (e.g., “SPI < 0.9 due to 3 late milestones”).
+- Exports bundle one-click `Status.md`, `RAID.csv`, and `Audit.json` outputs, all traceable to the canonical schema.
+
+## Demo talk track
+1. “We **don’t need any client files**—click *Load sample portfolio*.”
+2. “Here’s the **Data Health Score**. It shows what’s missing and why it matters.”
+3. “Open the **Chase Queue** to see the exact Teams nudges we’d send (with HITL approve/send).”
+4. “Click **Generate Status** for the exec-ready pack—RAID and EVM deltas stay tied to source fields.”
+5. “In telco siting, the **shot-clock panel** tracks deadlines and outstanding artifacts so nothing slips.”
+6. “Enterprise path? Flip adapters from mock→live (read-only), follow the NIST-aligned controls, and scale safely.”
+
+## 10-day enhancement plan
+- **Days 1–2**: Land the six new docs plus README links; add the sample portfolio CTA and Data Health Score badge.
+- **Days 3–5**: Ship the Chase Queue preview UI and the telco compliance panel with timers.
+- **Days 6–8**: Deliver the export bundle (`Status.md`, `RAID.csv`, `Audit.json`) and harden enterprise docs.
+- **Days 9–10**: Optionally enable Jira read-only behind `LIVE_CONNECTORS`, then capture a 5-minute click-through demo.
+
+## Points on data readiness
+- **“Data will not be clean”** → Data Health Score quantifies gaps, and chase prompts close them.
+- **“Multiple tools; every project configured differently”** → Adapters normalize enums into the canonical contract; outputs stay deterministic.
+- **“Data is never complete; follow-ups take time”** → Chase Queue drafts owner-specific requests with full context.
+- **“PMs do a lot of manual coordination”** → Standardized status packs, RAID updates, and nudges reclaim planning hours.
+- **“How does this become a product?”** → `docs/PRODUCTIZATION.md` + `docs/EVALUATION_CHECKLIST.md` map the controlled rollout and controls sign-off.
+- **“Telco specifics?”** → Compliance signals track NEPA/Section 106, 6409(a), and FCC shot clocks (see `docs/TELCO_COMPLIANCE.md`).
+- **“Ground-up vs hyperscaler vs Agent OS?”** → Adapter registry + Safe Mode keep options open for swapping runtime hosts without rework.
+
+## Security at a glance
 - **Safe Mode locked on**: The demo, Instant Demo, and hosted templates run without outbound calls.
 - **Mock adapters only**: Jira/Slack/ServiceNow stay read-only until you intentionally provide credentials.
 - **Local-first exports**: Status packs land in `/out/` on your machine; secrets never persist to disk.
@@ -149,12 +235,18 @@ A detailed tree lives in `docs/ARCHITECTURE.md`.
 - [docs/DATA-SCHEMA.md](docs/DATA-SCHEMA.md) – CSV/Markdown contracts, EVM formulas, sample data dictionary  
 - [docs/EVM-PRIMER.md](docs/EVM-PRIMER.md) – CPI/SPI primer with worked example  
 - [docs/EXTENDING.md](docs/EXTENDING.md) – how to add adapters, metrics, and cards  
+- [docs/DATA_STRATEGY.md](docs/DATA_STRATEGY.md) – canonical project contract, data health scoring, chase queue rationale  
+- [docs/CONNECTORS.md](docs/CONNECTORS.md) – Safe Mode defaults, live adapter toggles, and extension guide  
 - [docs/DEMO-SCRIPT.md](docs/DEMO-SCRIPT.md) – presenter-ready 3-minute flow  
 - [docs/ROADMAP.md](docs/ROADMAP.md) – Assist → Orchestrate → Autopilot rollout plan  
 - [docs/DEMOS.md](docs/DEMOS.md) – 3-minute & 10-minute demo walkthroughs  
 - [docs/DEMO-DECK.md](docs/DEMO-DECK.md) – ready-to-present executive pitch deck (Markdown)  
 - [docs/SECURITY.md](docs/SECURITY.md) – STRIDE-lite control set, Safe Mode posture  
 - [docs/EVALS.md](docs/EVALS.md) – evaluation metrics, ROI scenario table, regression plan  
+- [docs/PRODUCTIZATION.md](docs/PRODUCTIZATION.md) – prototype → enterprise runway with NIST AI RMF anchors  
+- [docs/EVALUATION_CHECKLIST.md](docs/EVALUATION_CHECKLIST.md) – evidence packet for platform, security, and risk reviewers  
+- [docs/ONBOARDING.md](docs/ONBOARDING.md) – 10-minute sample-first walkthrough and in-app checklist  
+- [docs/TELCO_COMPLIANCE.md](docs/TELCO_COMPLIANCE.md) – FCC shot clocks, NEPA/Section 106, and permitting signal mapping  
 - [docs/CHANGELOG.md](docs/CHANGELOG.md) – release history & demo cues
 
 ## Repository metadata

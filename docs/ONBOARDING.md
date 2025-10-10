@@ -1,6 +1,17 @@
-# Onboarding & First-Run Experience
+# Onboarding & Demo Flow (10 minutes)
 
-## First-Run Flow
+1. **Start with sample data** (no files needed): click “Load Sample Portfolio.”
+2. **Tour Data Health Score**: show why a project is at 72/100 and how to fix it.
+3. **Show the Chase Queue**: pick 2 gaps → preview the drafted Teams messages.
+4. **Generate the Status Pack**: one click to produce Exec Summary, RAID, EVM deltas.
+5. **(Optional) Toggle Live Read-Only**: connect to a sandbox Jira board to prove adapters.
+6. **Export**: markdown pack + CSV extract + audit log bundle.
+
+---
+
+## Onboarding & First-Run Experience (Reference)
+
+### First-Run Flow
 1. **Welcome Splash**: Displays value proposition and buttons: "Start guided tour" and "Load sample data".
 2. **Guided Tour (5 steps)**:
    - Step 1: Landing screen – explains file upload options, highlights Safe Mode indicator.
@@ -10,12 +21,12 @@
    - Step 5: ROI view – encourages tailoring assumptions and exporting the Status Pack.
 3. **Completion**: Tour completion triggers confetti micro-animation, marks onboarding_complete flag in localStorage, and surfaces "Next steps" checklist.
 
-## Sample Data CTA
+### Sample Data CTA
 - Button text: "Try with sample data".
 - Action: Calls `/api/demo/load` endpoint to copy sample CSV/MD into cache and return computed dashboard payload.
 - Success: Notifies user with toast "Sample program loaded (updated today)" and scrolls to dashboard.
 
-## In-App Checklist
+### In-App Checklist
 - Items (with checkboxes):
   1. Upload your backlog CSV.
   2. Upload risk register CSV.
@@ -24,16 +35,15 @@
   5. Export status pack.
 - Displayed in sidebar until all items marked complete; persisted in localStorage.
 
-## Empty State Copy
+### Empty State Copy
 - **Dashboard Empty**: "No data yet. Upload your CSVs or try the sample program to see ASR Copilot in action." CTA buttons for upload and sample data.
 - **ROI Empty**: "We need at least one upload to estimate time saved." Provide link to sample data and doc describing assumptions.
 
-## Error Handling
+### Error Handling
 - Upload validation: Show inline list of issues (e.g., missing columns), link to `/docs/PRD.md` schema appendix.
 - Backend failure: Display banner "We hit a snag while processing your data" with `Retry` and `Download logs` (captures JSON error message).
 - Export failure: Show modal with steps to verify write permissions to `/out/`.
 
-## Re-Onboarding
+### Re-Onboarding
 - "Replay tour" button in footer resets onboarding flags and restarts guided tour.
 - Detects when dataset schema changes and prompts to revisit onboarding if necessary.
-

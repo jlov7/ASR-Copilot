@@ -25,7 +25,7 @@
         "owner": "Priya Raman",
         "mitigation": "Escalate to vendor exec sponsor; pull ahead buffer stock via contingency PO.",
         "status": "High",
-        "days_to_due": -11
+        "days_to_due": -18
       },
       {
         "id": "R-203",
@@ -37,7 +37,7 @@
         "owner": "Jerry Wu",
         "mitigation": "Expand automated tests and add shadow environment smoke runs.",
         "status": "Medium",
-        "days_to_due": 3
+        "days_to_due": -4
       },
       {
         "id": "R-202",
@@ -49,7 +49,7 @@
         "owner": "Noah Bennett",
         "mitigation": "Stage rollback plan and pre-approve overtime with NOC.",
         "status": "Low",
-        "days_to_due": -17
+        "days_to_due": -24
       },
       {
         "id": "R-205",
@@ -61,7 +61,7 @@
         "owner": "Leah Chen",
         "mitigation": "Pre-brief CAB reviewers and align on risk mitigations one sprint earlier.",
         "status": "Low",
-        "days_to_due": 38
+        "days_to_due": 31
       },
       {
         "id": "R-204",
@@ -73,7 +73,7 @@
         "owner": "Zara Hayes",
         "mitigation": "Increase shared lab hours; schedule overnight lab access with vendors.",
         "status": "Low",
-        "days_to_due": -4
+        "days_to_due": -11
       }
     ],
     "heatmap": [
@@ -123,7 +123,7 @@
         "change_type": "added",
         "title": "Initial dataset",
         "detail": "First dataset uploaded; baselining established.",
-        "timestamp": "2024-03-15T12:00:00"
+        "timestamp": "2024-03-22T00:00:00"
       }
     ],
     "has_changes": true
@@ -271,7 +271,7 @@
   "narrative": "Status: At Risk. CPI 0.732 / SPI 0.428 (baseline 2024-03-22). Top risk: Vendor B radio units arriving 3 weeks late (severity 2.75, due 2024-03-04). Mitigation: Escalate to vendor exec sponsor; pull ahead buffer stock via contingency PO. Latest change: Note added \u2013 Initial dataset.",
   "meta": {
     "dataset_hash": "4b1dec3ab62a1790a2e9d6dec98e2903967a301ae711457455fc741f778abd33",
-    "last_updated": "2024-03-15T12:00:00",
+    "last_updated": "2024-03-22T00:00:00",
     "safe_mode": true
   },
   "automation": {
@@ -311,5 +311,178 @@
     ],
     "last_run": null,
     "trigger": "unknown"
+  },
+  "data_health": {
+    "total": 92,
+    "label": "Strong",
+    "summary": "Completeness: 3 issue(s), Freshness: 3 issue(s), Consistency: 1 issue(s)",
+    "dimensions": [
+      {
+        "key": "completeness",
+        "label": "Completeness",
+        "score": 38,
+        "max_score": 40,
+        "description": "Required fields are populated (owners, actuals, mitigations, dependencies).",
+        "issues": [
+          "Vendor interoperability lab has no updated effort even though work started 2024-02-12.",
+          "Edge core integration gate has no updated effort even though work started 2024-02-26.",
+          "Service automation hardening (API) has no updated effort even though work started 2024-03-04."
+        ],
+        "actions": [
+          "Ask Marco Lee for updated estimate on Vendor interoperability lab.",
+          "Ask Ana Gomez for updated estimate on Edge core integration gate.",
+          "Ask Jerry Wu for updated estimate on Service automation hardening (API)."
+        ]
+      },
+      {
+        "key": "freshness",
+        "label": "Freshness",
+        "score": 22,
+        "max_score": 25,
+        "description": "Updates landed recently for in-flight work and status notes.",
+        "issues": [
+          "Vendor interoperability lab has not been updated since the planned start on 2024-02-12.",
+          "Edge core integration gate has not been updated since the planned start on 2024-02-26.",
+          "Service automation hardening (API) has not been updated since the planned start on 2024-03-04."
+        ],
+        "actions": [
+          "Confirm kickoff status for Vendor interoperability lab or adjust schedule.",
+          "Confirm kickoff status for Edge core integration gate or adjust schedule.",
+          "Confirm kickoff status for Service automation hardening (API) or adjust schedule."
+        ]
+      },
+      {
+        "key": "consistency",
+        "label": "Consistency",
+        "score": 22,
+        "max_score": 25,
+        "description": "Status aligns with dates, blockers, and earned value deltas.",
+        "issues": [
+          "Workstream B: RAN upgrade clusters (Vendor B) is blocked; mitigation needs logging."
+        ],
+        "actions": [
+          "Work with Priya Raman to document unblock plan for Workstream B: RAN upgrade clusters (Vendor B)."
+        ]
+      },
+      {
+        "key": "conformance",
+        "label": "Conformance",
+        "score": 10,
+        "max_score": 10,
+        "description": "Data matches canonical schema and enum expectations.",
+        "issues": [],
+        "actions": []
+      }
+    ],
+    "last_calculated": "2024-03-22T00:00:00"
+  },
+  "chase_queue": [
+    {
+      "gap_id": "completeness-T-205",
+      "summary": "Missing updated estimate for Vendor interoperability lab",
+      "owner": "Marco Lee",
+      "owner_role": null,
+      "channel": "teams",
+      "priority": "medium",
+      "status": "draft",
+      "message": "Hi Marco, the task \u201cVendor interoperability lab\u201d still shows zero actual hours even though it kicked off on 2024-02-12. Can you drop an updated estimate or actual by end of day so we can clear the completeness flag and keep the Data Health Score in the green?",
+      "related_entities": [
+        "T-205"
+      ],
+      "dimension": "completeness"
+    },
+    {
+      "gap_id": "completeness-T-206",
+      "summary": "Missing updated estimate for Edge core integration gate",
+      "owner": "Ana Gomez",
+      "owner_role": null,
+      "channel": "teams",
+      "priority": "medium",
+      "status": "draft",
+      "message": "Hi Ana, the task \u201cEdge core integration gate\u201d still shows zero actual hours even though it kicked off on 2024-02-26. Can you drop an updated estimate or actual by end of day so we can clear the completeness flag and keep the Data Health Score in the green?",
+      "related_entities": [
+        "T-206"
+      ],
+      "dimension": "completeness"
+    },
+    {
+      "gap_id": "completeness-T-207",
+      "summary": "Missing updated estimate for Service automation hardening (API)",
+      "owner": "Jerry Wu",
+      "owner_role": null,
+      "channel": "teams",
+      "priority": "medium",
+      "status": "draft",
+      "message": "Hi Jerry, the task \u201cService automation hardening (API)\u201d still shows zero actual hours even though it kicked off on 2024-03-04. Can you drop an updated estimate or actual by end of day so we can clear the completeness flag and keep the Data Health Score in the green?",
+      "related_entities": [
+        "T-207"
+      ],
+      "dimension": "completeness"
+    },
+    {
+      "gap_id": "consistency-T-203",
+      "summary": "Blocked task needs mitigation update: Workstream B: RAN upgrade clusters (Vendor B)",
+      "owner": "Priya Raman",
+      "owner_role": null,
+      "channel": "email",
+      "priority": "high",
+      "status": "draft",
+      "message": "Heads-up Priya \u2014 \u201cWorkstream B: RAN upgrade clusters (Vendor B)\u201d is still marked blocked. Can you add the mitigation or next action in Jira so everyone sees how we\u2019re clearing it?",
+      "related_entities": [
+        "T-203"
+      ],
+      "dimension": "consistency"
+    }
+  ],
+  "compliance": {
+    "shot_clocks": [
+      {
+        "key": "fcc_collocation_90",
+        "label": "FCC Shot Clock \u2013 90 days (collocation)",
+        "deadline": "2024-04-07",
+        "days_remaining": 16,
+        "status": "amber",
+        "description": "Track collocation modifications under the 90-day FCC requirement."
+      },
+      {
+        "key": "fcc_new_site_150",
+        "label": "FCC Shot Clock \u2013 150 days (new site)",
+        "deadline": "2024-06-06",
+        "days_remaining": 76,
+        "status": "green",
+        "description": "New site builds must close out permitting within 150 days or risk timelines slipping."
+      }
+    ],
+    "checklist": [
+      {
+        "key": "nepa_section_106",
+        "label": "NEPA / Section 106 correspondence logged",
+        "status": "pending",
+        "owner": "Permitting Lead",
+        "action": "Upload the latest SHPO/THPO correspondence to keep audit trails tight."
+      },
+      {
+        "key": "eligible_facilities",
+        "label": "6409(a) eligibility documented",
+        "status": "pending",
+        "owner": "Regulatory Counsel",
+        "action": "Confirm eligible facilities memo is filed to maintain expedited handling."
+      },
+      {
+        "key": "structural",
+        "label": "Structural calculations attached",
+        "status": "missing",
+        "owner": "Engineering",
+        "action": "Drop structural calcs and stamped drawings for the construction packet."
+      },
+      {
+        "key": "power_service",
+        "label": "Power service / inspection scheduled",
+        "status": "missing",
+        "owner": "Field Operations",
+        "action": "Coordinate with the utility to secure inspection and power turn-up dates."
+      }
+    ],
+    "last_reviewed": "2024-03-22"
   }
 }

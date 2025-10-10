@@ -104,6 +104,9 @@ def load_guided_dataset(
 
     dataset_hash = compute_dataset_hash(tasks, risks, notes)
     resolved_timestamp = (timestamp or _timestamp_for_seed(seed)).replace(microsecond=0)
+    derived_candidates = [note.date for note in notes] + [point.date for point in baseline]
+    derived_timestamp = datetime.combine(max(derived_candidates), datetime.min.time()) if derived_candidates else resolved_timestamp
+    last_updated = max(resolved_timestamp, derived_timestamp)
 
     snapshot = DatasetSnapshot(
         tasks=tasks,
@@ -111,6 +114,6 @@ def load_guided_dataset(
         status_notes=notes,
         baseline=baseline,
         dataset_hash=dataset_hash,
-        last_updated=resolved_timestamp,
+        last_updated=last_updated,
     )
     return snapshot

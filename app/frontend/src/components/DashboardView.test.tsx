@@ -3,6 +3,8 @@ import { describe, expect, it, vi } from 'vitest'
 import { DashboardView } from './DashboardView'
 import type { DashboardPayload } from '../types'
 
+const now = new Date().toISOString()
+
 const payload: DashboardPayload = {
   evm: {
     pv: 380,
@@ -133,8 +135,117 @@ const payload: DashboardPayload = {
   narrative: 'Status: Watch. CPI 0.871 / SPI 0.816.',
   meta: {
     dataset_hash: 'abc',
-    last_updated: new Date().toISOString(),
+    last_updated: now,
     safe_mode: true,
+  },
+  data_health: {
+    total: 90,
+    label: 'Strong',
+    summary: 'Completeness: 1 issue(s)',
+    last_calculated: now,
+    dimensions: [
+      {
+        key: 'completeness',
+        label: 'Completeness',
+        score: 36,
+        max_score: 40,
+        description: 'Required fields populated.',
+        issues: ['Task T-1 missing owner.'],
+        actions: ['Assign an owner to Task T-1.'],
+      },
+      {
+        key: 'freshness',
+        label: 'Freshness',
+        score: 22,
+        max_score: 25,
+        description: 'Updates land recently for active work.',
+        issues: [],
+        actions: [],
+      },
+      {
+        key: 'consistency',
+        label: 'Consistency',
+        score: 22,
+        max_score: 25,
+        description: 'Status aligns with dates and blockers.',
+        issues: ['Integration task is blocked without mitigation.'],
+        actions: ['Capture mitigation for Integration task.'],
+      },
+      {
+        key: 'conformance',
+        label: 'Conformance',
+        score: 10,
+        max_score: 10,
+        description: 'Matches canonical schema.',
+        issues: [],
+        actions: [],
+      },
+    ],
+  },
+  chase_queue: [
+    {
+      gap_id: 'completeness-T-1',
+      summary: 'Missing owner assignment',
+      owner: 'Jess PM',
+      owner_role: 'Project Manager',
+      channel: 'teams',
+      priority: 'medium',
+      status: 'draft',
+      message: 'Hi Jess, can you assign an owner to Task T-1 so we can clear the completeness gap?',
+      related_entities: ['T-1'],
+      dimension: 'completeness',
+    },
+  ],
+  compliance: {
+    shot_clocks: [
+      {
+        key: 'fcc_collocation_90',
+        label: 'FCC Shot Clock – 90 days (collocation)',
+        deadline: '2024-06-01',
+        days_remaining: 42,
+        status: 'green',
+        description: 'Collocation milestones remain on track.',
+      },
+      {
+        key: 'fcc_new_site_150',
+        label: 'FCC Shot Clock – 150 days (new site)',
+        deadline: '2024-08-10',
+        days_remaining: 112,
+        status: 'amber',
+        description: 'Monitor permitting packet to avoid delays.',
+      },
+    ],
+    checklist: [
+      {
+        key: 'nepa_section_106',
+        label: 'NEPA / Section 106 correspondence logged',
+        status: 'complete',
+        owner: 'Permitting Lead',
+        action: 'Upload latest SHPO letter to audit folder.',
+      },
+      {
+        key: 'eligible_facilities',
+        label: '6409(a) eligibility documented',
+        status: 'pending',
+        owner: 'Regulatory Counsel',
+        action: 'Confirm documentation before review board.',
+      },
+      {
+        key: 'structural',
+        label: 'Structural calculations attached',
+        status: 'missing',
+        owner: 'Engineering',
+        action: 'Provide stamped drawings for build packet.',
+      },
+      {
+        key: 'power_service',
+        label: 'Power service / inspection scheduled',
+        status: 'pending',
+        owner: 'Field Ops',
+        action: 'Coordinate utility inspection prior to go-live.',
+      },
+    ],
+    last_reviewed: now,
   },
 }
 
@@ -157,8 +268,10 @@ describe('DashboardView', () => {
     )
 
     expect(screen.getByText(/Overall RAG/)).toHaveTextContent('Overall RAG: At Risk')
+    expect(screen.getByText(/Data Health 90/)).toBeInTheDocument()
     expect(screen.getByText(/Planned Value/)).toBeInTheDocument()
     expect(screen.getAllByText(/Vendor firmware slip/)[0]).toBeInTheDocument()
+    expect(screen.getByText(/Chase queue/)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Preview export/i })).toBeInTheDocument()
   })
 })

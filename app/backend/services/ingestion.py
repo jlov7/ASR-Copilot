@@ -221,6 +221,18 @@ def compute_dataset_hash(tasks: List[Task], risks: List[Risk], notes: List[Statu
     return _compute_dataset_hash(tasks, risks, notes)
 
 
+def _calculate_last_updated(notes: List[StatusNote], baseline: List[EvmBaselinePoint]) -> datetime:
+    candidates: List[date] = []
+    if notes:
+        candidates.append(max(note.date for note in notes))
+    if baseline:
+        candidates.append(max(point.date for point in baseline))
+    if not candidates:
+        candidates.append(date.today())
+    reference = max(candidates)
+    return datetime.combine(reference, datetime.min.time())
+
+
 def ingest_payload(
     tasks_file: UploadFile,
     risks_file: UploadFile,
@@ -235,13 +247,14 @@ def ingest_payload(
         raise HTTPException(status_code=400, detail="Status notes file is empty.")
     notes = parse_status_notes(notes_bytes.decode("utf-8"))
     dataset_hash = _compute_dataset_hash(tasks, risks, notes)
+    last_updated = _calculate_last_updated(notes, baseline)
     snapshot = DatasetSnapshot(
         tasks=tasks,
         risks=risks,
         status_notes=notes,
         baseline=baseline,
         dataset_hash=dataset_hash,
-        last_updated=datetime.utcnow(),
+        last_updated=last_updated,
     )
     return snapshot
 
@@ -265,13 +278,14 @@ def load_sample_dataset(settings: Settings) -> DatasetSnapshot:
     notes = parse_status_notes(notes_path.read_text(encoding="utf-8"))
     baseline = parse_baseline(baseline_path.read_bytes())
     dataset_hash = _compute_dataset_hash(tasks, risks, notes)
+    last_updated = _calculate_last_updated(notes, baseline)
     return DatasetSnapshot(
         tasks=tasks,
         risks=risks,
         status_notes=notes,
         baseline=baseline,
         dataset_hash=dataset_hash,
-        last_updated=datetime.utcnow(),
+        last_updated=last_updated,
     )
 
 

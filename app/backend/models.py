@@ -196,6 +196,60 @@ class DashboardMeta(BaseModel):
     safe_mode: bool
 
 
+class DataHealthDimension(BaseModel):
+    key: Literal["completeness", "freshness", "consistency", "conformance"]
+    label: str
+    score: int
+    max_score: int
+    description: str
+    issues: List[str]
+    actions: List[str]
+
+
+class DataHealthScore(BaseModel):
+    total: int
+    label: Literal["Excellent", "Strong", "Fair", "Weak"]
+    summary: str
+    dimensions: List[DataHealthDimension]
+    last_calculated: datetime
+
+
+class ChaseQueueItem(BaseModel):
+    gap_id: str
+    summary: str
+    owner: str
+    owner_role: Optional[str]
+    channel: Literal["email", "teams"]
+    priority: Literal["low", "medium", "high"]
+    status: Literal["draft", "ready", "sent"]
+    message: str
+    related_entities: List[str] = Field(default_factory=list)
+    dimension: Literal["completeness", "freshness", "consistency", "conformance"]
+
+
+class ComplianceCountdown(BaseModel):
+    key: Literal["fcc_collocation_90", "fcc_new_site_150"]
+    label: str
+    deadline: date
+    days_remaining: int
+    status: Literal["green", "amber", "red"]
+    description: str
+
+
+class ComplianceChecklistItem(BaseModel):
+    key: Literal["nepa_section_106", "eligible_facilities", "structural", "power_service"]
+    label: str
+    status: Literal["complete", "pending", "missing"]
+    owner: Optional[str]
+    action: Optional[str]
+
+
+class CompliancePanel(BaseModel):
+    shot_clocks: List[ComplianceCountdown]
+    checklist: List[ComplianceChecklistItem]
+    last_reviewed: date
+
+
 class DashboardPayload(BaseModel):
     evm: EvmMetrics
     risks: RiskSummary
@@ -204,6 +258,9 @@ class DashboardPayload(BaseModel):
     narrative: str
     meta: DashboardMeta
     automation: AutomationStatus
+    data_health: DataHealthScore
+    chase_queue: List[ChaseQueueItem]
+    compliance: CompliancePanel
 
 
 class StatusPackRequest(BaseModel):

@@ -15,6 +15,8 @@ from app.core.diffs import generate_changes
 from app.core.evm import calculate_metrics
 from app.core.risk_scoring import summarize_risks
 from app.core.summarizer import build_narrative
+from app.core.data_health import evaluate_data_health
+from app.core.telco_compliance import build_telco_compliance
 
 
 def build_dashboard_payload(
@@ -36,6 +38,8 @@ def build_dashboard_payload(
         safe_mode=settings.safe_mode,
     )
     automation_status = automation.load_status(settings)
+    data_health, chase_queue = evaluate_data_health(snapshot)
+    compliance = build_telco_compliance(snapshot)
     return DashboardPayload(
         evm=evm,
         risks=risks,
@@ -44,4 +48,7 @@ def build_dashboard_payload(
         narrative=narrative,
         meta=meta,
         automation=automation_status,
+        data_health=data_health,
+        chase_queue=chase_queue,
+        compliance=compliance,
     )

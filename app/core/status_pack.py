@@ -34,29 +34,73 @@ def _rag_state(spi: float | None, cpi: float | None) -> str:
 def _build_markdown(payload: DashboardPayload) -> str:
     evm = payload.evm
     rag = _rag_state(evm.spi, evm.cpi)
+    data_health = payload.data_health
     lines = [
         f"# ASR Copilot Status Pack ({payload.meta.last_updated.date()})",
         "",
         f"**Overall RAG:** {rag}",
+        f"**Data Health Score:** {data_health.total}/100 ({data_health.label})",
         "",
         "## Executive Summary",
         payload.narrative,
         "",
-        "## Earned Value Metrics",
-        "| Metric | Value |",
-        "| ------ | ----- |",
-        f"| PV | {evm.pv:.2f} |",
-        f"| EV | {evm.ev:.2f} |",
-        f"| AC | {evm.ac:.2f} |",
-        f"| SV | {evm.sv:.2f} |",
-        f"| CV | {evm.cv:.2f} |",
-        f"| SPI | {evm.spi if evm.spi is not None else 'n/a'} |",
-        f"| CPI | {evm.cpi if evm.cpi is not None else 'n/a'} |",
-        f"| EAC | {evm.eac if evm.eac is not None else 'n/a'} |",
-        f"| ETC | {evm.etc if evm.etc is not None else 'n/a'} |",
-        "",
-        "## Top Risks",
+        "## Data Health Score",
+        f"- {data_health.summary}",
     ]
+    for dimension in data_health.dimensions:
+        score_line = f"  - {dimension.label}: {dimension.score}/{dimension.max_score}"
+        if dimension.issues:
+            score_line += f" – {dimension.issues[0]}"
+        else:
+            score_line += " – No gaps detected."
+        lines.append(score_line)
+
+    lines.extend(
+        [
+            "",
+            "## Earned Value Metrics",
+            "| Metric | Value |",
+            "| ------ | ----- |",
+            f"| PV | {evm.pv:.2f} |",
+            f"| EV | {evm.ev:.2f} |",
+            f"| AC | {evm.ac:.2f} |",
+            f"| SV | {evm.sv:.2f} |",
+            f"| CV | {evm.cv:.2f} |",
+            f"| SPI | {evm.spi if evm.spi is not None else 'n/a'} |",
+            f"| CPI | {evm.cpi if evm.cpi is not None else 'n/a'} |",
+            f"| EAC | {evm.eac if evm.eac is not None else 'n/a'} |",
+            f"| ETC | {evm.etc if evm.etc is not None else 'n/a'} |",
+            "",
+            "## Telco Compliance Signals",
+        ]
+    )
+
+    if payload.compliance.shot_clocks:
+        lines.append("| Clock | Deadline | Days Remaining | Status | Description |")
+        lines.append("| ----- | -------- | -------------- | ------ | ----------- |")
+        for clock in payload.compliance.shot_clocks:
+            lines.append(
+                f"| {clock.label} | {clock.deadline} | {clock.days_remaining} | {clock.status.title()} | {clock.description} |"
+            )
+    else:
+        lines.append("_No shot clocks configured._")
+
+    if payload.compliance.checklist:
+        lines.append("")
+        lines.append("### Permitting Checklist")
+        lines.append("| Item | Status | Owner | Next Action |")
+        lines.append("| ---- | ------ | ----- | ----------- |")
+        for item in payload.compliance.checklist:
+            owner = item.owner or "—"
+            action = item.action or "—"
+            lines.append(f"| {item.label} | {item.status.title()} | {owner} | {action} |")
+
+    lines.extend(
+        [
+            "",
+            "## Top Risks",
+        ]
+    )
     if payload.risks.top_risks:
         lines.append("| ID | Risk | Severity | Due | Owner | Mitigation |")
         lines.append("| -- | ---- | -------- | --- | ----- | ---------- |")
@@ -84,6 +128,23 @@ def _build_markdown(payload: DashboardPayload) -> str:
             lines.append(f"  - {change.detail}")
     else:
         lines.append("No changes detected.")
+
+    lines.extend(
+        [
+            "",
+            "## Chase Queue (Preview)",
+        ]
+    )
+
+    if payload.chase_queue:
+        lines.append("| Gap | Owner | Channel | Priority | Message |")
+        lines.append("| --- | ----- | ------- | -------- | ------- |")
+        for item in payload.chase_queue:
+            lines.append(
+                f"| {item.summary} | {item.owner} | {item.channel.title()} | {item.priority.title()} | {item.message} |"
+            )
+    else:
+        lines.append("_No chase actions queued._")
 
     lines.extend(
         [

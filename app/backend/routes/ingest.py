@@ -2,17 +2,14 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, File, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from pydantic import BaseModel, Field
 
 from app.backend.config import Settings, get_settings
 from app.backend.models import UploadResponse
 from app.backend.services import automation, cache
-from app.backend.services.ingestion import (
-    ingest_payload,
-    load_sample_dataset,
-    to_upload_response,
-)
+from app.backend.services.ingestion import ingest_payload, load_sample_dataset, to_upload_response
+from app.backend.services.live_ingestion import LiveIngestionError, build_snapshot_from_adapters
 from app.backend.services.samples import load_guided_dataset
 
 router = APIRouter(prefix="/api", tags=["ingestion"])
@@ -44,6 +41,27 @@ async def ingest_data(
     snapshot = ingest_payload(tasks, risks, status_notes, evm_baseline)
     cache.save_snapshot(settings, snapshot)
     automation.record_dataset_refresh(settings, snapshot, trigger="upload")
+    return to_upload_response(snapshot)
+
+
+@router.post("/ingest/live", response_model=UploadResponse)
+async def ingest_live_data(settings: Settings = Depends(get_settings)) -> UploadResponse:
+    """Synchronize dataset using live adapters (Jira read-only)."""
+    if settings.safe_mode:
+        raise HTTPException(status_code=400, detail="Disable Safe Mode to ingest from live adapters.")
+    if settings.get_adapter_mode("jira") != "live":
+        raise HTTPException(status_code=400, detail="Enable Jira live mode before running live ingestion.")
+    try:
+        snapshot = build_snapshot_from_adapters(settings)
+    except LiveIngestionError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    cache.save_snapshot(settings, snapshot)
+    automation.record_dataset_refresh(
+        settings,
+        snapshot,
+        trigger="live",
+        previous_snapshot=cache.load_previous(settings),
+    )
     return to_upload_response(snapshot)
 
 

@@ -1,0 +1,153 @@
+{
+  "generated_at": "2025-10-10T14:22:27Z",
+  "dataset_hash": "4b1dec3ab62a1790a2e9d6dec98e2903967a301ae711457455fc741f778abd33",
+  "safe_mode": true,
+  "data_health": {
+    "score": 92,
+    "label": "Strong",
+    "summary": "Completeness: 3 issue(s), Freshness: 3 issue(s), Consistency: 1 issue(s)",
+    "dimensions": [
+      {
+        "key": "completeness",
+        "score": 38,
+        "max": 40,
+        "issues": [
+          "Vendor interoperability lab has no updated effort even though work started 2024-02-12.",
+          "Edge core integration gate has no updated effort even though work started 2024-02-26.",
+          "Service automation hardening (API) has no updated effort even though work started 2024-03-04."
+        ],
+        "actions": [
+          "Ask Marco Lee for updated estimate on Vendor interoperability lab.",
+          "Ask Ana Gomez for updated estimate on Edge core integration gate.",
+          "Ask Jerry Wu for updated estimate on Service automation hardening (API)."
+        ]
+      },
+      {
+        "key": "freshness",
+        "score": 22,
+        "max": 25,
+        "issues": [
+          "Vendor interoperability lab has not been updated since the planned start on 2024-02-12.",
+          "Edge core integration gate has not been updated since the planned start on 2024-02-26.",
+          "Service automation hardening (API) has not been updated since the planned start on 2024-03-04."
+        ],
+        "actions": [
+          "Confirm kickoff status for Vendor interoperability lab or adjust schedule.",
+          "Confirm kickoff status for Edge core integration gate or adjust schedule.",
+          "Confirm kickoff status for Service automation hardening (API) or adjust schedule."
+        ]
+      },
+      {
+        "key": "consistency",
+        "score": 22,
+        "max": 25,
+        "issues": [
+          "Workstream B: RAN upgrade clusters (Vendor B) is blocked; mitigation needs logging."
+        ],
+        "actions": [
+          "Work with Priya Raman to document unblock plan for Workstream B: RAN upgrade clusters (Vendor B)."
+        ]
+      },
+      {
+        "key": "conformance",
+        "score": 10,
+        "max": 10,
+        "issues": [],
+        "actions": []
+      }
+    ]
+  },
+  "sources": {
+    "tasks": {
+      "records": 11
+    },
+    "risks": {
+      "records": 5
+    },
+    "status_notes": {
+      "records": 3,
+      "last_date": "2024-03-01"
+    },
+    "evm_baseline": {
+      "records": 5,
+      "last_date": "2024-03-22"
+    }
+  },
+  "chase_queue": [
+    {
+      "gap_id": "completeness-T-205",
+      "owner": "Marco Lee",
+      "channel": "teams",
+      "priority": "medium",
+      "dimension": "completeness",
+      "message": "Hi Marco, the task \u201cVendor interoperability lab\u201d still shows zero actual hours even though it kicked off on 2024-02-12. Can you drop an updated estimate or actual by end of day so we can clear the completeness flag and keep the Data Health Score in the green?"
+    },
+    {
+      "gap_id": "completeness-T-206",
+      "owner": "Ana Gomez",
+      "channel": "teams",
+      "priority": "medium",
+      "dimension": "completeness",
+      "message": "Hi Ana, the task \u201cEdge core integration gate\u201d still shows zero actual hours even though it kicked off on 2024-02-26. Can you drop an updated estimate or actual by end of day so we can clear the completeness flag and keep the Data Health Score in the green?"
+    },
+    {
+      "gap_id": "completeness-T-207",
+      "owner": "Jerry Wu",
+      "channel": "teams",
+      "priority": "medium",
+      "dimension": "completeness",
+      "message": "Hi Jerry, the task \u201cService automation hardening (API)\u201d still shows zero actual hours even though it kicked off on 2024-03-04. Can you drop an updated estimate or actual by end of day so we can clear the completeness flag and keep the Data Health Score in the green?"
+    },
+    {
+      "gap_id": "consistency-T-203",
+      "owner": "Priya Raman",
+      "channel": "email",
+      "priority": "high",
+      "dimension": "consistency",
+      "message": "Heads-up Priya \u2014 \u201cWorkstream B: RAN upgrade clusters (Vendor B)\u201d is still marked blocked. Can you add the mitigation or next action in Jira so everyone sees how we\u2019re clearing it?"
+    }
+  ],
+  "compliance": {
+    "shot_clocks": [
+      {
+        "label": "FCC Shot Clock \u2013 90 days (collocation)",
+        "deadline": "2024-04-07",
+        "days_remaining": 16,
+        "status": "amber"
+      },
+      {
+        "label": "FCC Shot Clock \u2013 150 days (new site)",
+        "deadline": "2024-06-06",
+        "days_remaining": 76,
+        "status": "green"
+      }
+    ],
+    "checklist": [
+      {
+        "label": "NEPA / Section 106 correspondence logged",
+        "status": "pending",
+        "owner": "Permitting Lead",
+        "action": "Upload the latest SHPO/THPO correspondence to keep audit trails tight."
+      },
+      {
+        "label": "6409(a) eligibility documented",
+        "status": "pending",
+        "owner": "Regulatory Counsel",
+        "action": "Confirm eligible facilities memo is filed to maintain expedited handling."
+      },
+      {
+        "label": "Structural calculations attached",
+        "status": "missing",
+        "owner": "Engineering",
+        "action": "Drop structural calcs and stamped drawings for the construction packet."
+      },
+      {
+        "label": "Power service / inspection scheduled",
+        "status": "missing",
+        "owner": "Field Operations",
+        "action": "Coordinate with the utility to secure inspection and power turn-up dates."
+      }
+    ],
+    "last_reviewed": "2024-03-22"
+  }
+}

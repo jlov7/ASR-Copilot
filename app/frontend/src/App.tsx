@@ -122,6 +122,7 @@ export default function App() {
   const [previewData, setPreviewData] = useState<StatusPackPreview | null>(null)
   const [previewError, setPreviewError] = useState<string | null>(null)
   const guidedSectionRef = useRef<HTMLDivElement | null>(null)
+  const adaptersSectionRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     saveChecklist(checklist)
@@ -196,6 +197,14 @@ export default function App() {
 
   const focusGuidedMode = useCallback(() => {
     const target = guidedSectionRef.current
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      target.focus({ preventScroll: true })
+    }
+  }, [])
+
+  const focusAdaptersPanel = useCallback(() => {
+    const target = adaptersSectionRef.current
     if (target) {
       target.scrollIntoView({ behavior: 'smooth', block: 'start' })
       target.focus({ preventScroll: true })
@@ -738,6 +747,7 @@ export default function App() {
           onShowGuided={focusGuidedMode}
           onLoadSample={handleSampleLoad}
           onFocusUpload={focusUploadForm}
+          onFocusAdapters={focusAdaptersPanel}
           safeModeDocUrl={SAFE_MODE_DOC_URL}
           sampleLoading={sampleLoading}
         />
@@ -747,38 +757,69 @@ export default function App() {
         <div>
           <h2>Automate your status rituals.</h2>
           <p className="hero-lede">
-            <strong>See it in 15 seconds</strong> → Click <span className="hero-highlight">Instant Demo</span> below (no files needed).
+            <strong>No files needed.</strong> Click <span className="hero-highlight">Load sample portfolio</span> to launch the telco demo with Safe
+            Mode locked on.
           </p>
           <p className="hero-copy">
-            ASR Copilot turns weekly status drudgery into a 3-minute executive update: <em>health (RAG)</em> → <em>EVM (CPI/SPI)</em> →{' '}
-            <em>Top risks</em> → <em>What changed</em> → <em>1-click export</em>.
+            ASR Copilot ingests messy Jira/CSV artifacts, scores data health, drafts deterministic status packs, and keeps telco shot clocks visible.
           </p>
-          <p className="hero-safety">
-            <strong>No integrations.</strong> Safe Mode by default. Deterministic analytics.
-          </p>
+          <p className="hero-safety">Safe Mode stays on. Deterministic analytics, HITL approvals, audit-ready exports.</p>
           <p className="hero-meta">{heroSubtitle}</p>
-          <div className="cta-group">
+          <div className="decision-grid" role="group" aria-label="Primary entry points">
             <button
-              className="button primary"
-              onClick={handleWelcomeGuided}
-              title="Scroll to the Instant Demo tiles and launch a scenario instantly."
-            >
-              Launch Instant Demo
-            </button>
-            <button className="button secondary" onClick={handleWelcomeUpload} title="Jump to the upload form and process your own artifacts.">
-              Process your files
-            </button>
-            <button
-              className="button ghost"
+              className="decision-card primary"
+              type="button"
               onClick={() => {
                 acknowledgeWelcome()
-                handleReplayTour()
+                void handleSampleLoad()
               }}
-              title="Walk through the five-step onboarding overlays."
+              disabled={sampleLoading}
+              aria-busy={sampleLoading}
+              title="One click loads the bundled telecom portfolio so you can narrate the story without prep."
             >
-              Start guided tour
+              <span className="card-heading">Load sample portfolio</span>
+              <span className="card-copy">
+                Instant 5G scenario with Data Health Score, chase queue preview, and telco compliance panel. Safe Mode stays on.
+              </span>
+              <span className="card-cta">{sampleLoading ? 'Loading…' : 'Launch demo'}</span>
+            </button>
+            <button
+              className="decision-card secondary"
+              type="button"
+              onClick={() => {
+                acknowledgeWelcome()
+                focusAdaptersPanel()
+              }}
+              title="Scroll to the connectors panel and walk through read-only adapter setup."
+            >
+              <span className="card-heading">Connect read-only</span>
+              <span className="card-copy">Flip Jira, ServiceNow, or Planview to live (read-only) adapters with Safe Mode guardrails.</span>
+              <span className="card-cta">View connectors</span>
+            </button>
+            <button
+              className="decision-card tertiary"
+              type="button"
+              onClick={() => {
+                acknowledgeWelcome()
+                focusUploadForm()
+              }}
+              title="Jump to the upload form to process your own CSV/Markdown artifacts."
+            >
+              <span className="card-heading">Upload CSV/Markdown</span>
+              <span className="card-copy">Bring your backlog, risk register, notes, and baseline to generate deterministic exports.</span>
+              <span className="card-cta">Open upload form</span>
             </button>
           </div>
+          <button
+            className="button link hero-tour"
+            onClick={() => {
+              acknowledgeWelcome()
+              handleReplayTour()
+            }}
+            title="Walk through the five-step onboarding overlays."
+          >
+            Start guided tour
+          </button>
         </div>
         <div className="checklist" aria-label="Onboarding checklist">
           <h3>First-time checklist</h3>
@@ -827,13 +868,15 @@ export default function App() {
 
       {!settingsLoading && (
         <>
-          <AdaptersPanel
-            adapters={settings.adapters}
-            adapterModes={settings.adapter_modes}
-            safeMode={settings.safe_mode}
-            onModeChange={handleAdapterModeChange}
-            onSanityCheck={handleAdapterCheck}
-          />
+          <div ref={adaptersSectionRef} className="adapters-anchor" tabIndex={-1}>
+            <AdaptersPanel
+              adapters={settings.adapters}
+              adapterModes={settings.adapter_modes}
+              safeMode={settings.safe_mode}
+              onModeChange={handleAdapterModeChange}
+              onSanityCheck={handleAdapterCheck}
+            />
+          </div>
           <PrivacyPanel onPurge={handlePurgeLocalData} purging={purging} />
         </>
       )}
